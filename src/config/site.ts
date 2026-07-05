@@ -2,20 +2,20 @@ import { env } from "@/lib/env";
 import type { NavItem } from "@/types/nav";
 
 export const siteConfig = {
-  name: "Next.js Starter Kit",
+  name: "devina cecilia",
+  tagline: "developer / writer / overthinker",
   description:
-    "A production-minded Next.js boilerplate for landing pages, portfolios, dashboards, backoffices, games, blogs, and product apps.",
+    "Thoughts, code, and everything in between — a personal journal about software, writing, and the occasional 2am realization.",
   url: env.NEXT_PUBLIC_APP_URL,
   ogImage: "/og",
-  author: "Open Source",
+  author: "Devina Cecilia",
   mainNav: [
-    { title: "Foundation", href: "#foundation" },
-    { title: "Components", href: "https://ui.shadcn.com/docs/components" },
-    { title: "Docs", href: "https://nextjs.org/docs" },
+    { title: "posts", href: "/#posts" },
+    { title: "about", href: "/#about" },
   ] satisfies NavItem[],
   links: {
-    docs: "https://nextjs.org/docs",
-    github: "https://github.com/devinaacs/next-starter-kit",
-    shadcn: "https://ui.shadcn.com/",
+    email: "hello@devinacecilia.dev",
+    github: "https://github.com/devinacecilia",
+    twitter: "https://twitter.com/devinacecilia",
   },
 };
