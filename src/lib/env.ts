@@ -5,10 +5,7 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
-  NEXT_PUBLIC_API_URL: z
-    .string()
-    .url()
-    .default("http://localhost:3001/api/v1"),
+  NEXT_PUBLIC_API_URL: z.string().url().default("http://localhost:3001/api/v1"),
 });
 
 export const env = envSchema.parse({

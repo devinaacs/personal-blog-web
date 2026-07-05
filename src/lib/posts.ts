@@ -2,16 +2,19 @@ import { apiFetch, apiFetchOrNull } from "@/lib/api";
 import { PaginatedResult, Post } from "@/types/post";
 
 export async function listPublishedPosts(
-  params: { page?: number; limit?: number } = {},
+  params: { page?: number; limit?: number; fresh?: boolean } = {},
 ): Promise<PaginatedResult<Post>> {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     limit: String(params.limit ?? 20),
   });
+  const cacheInit: RequestInit & { next?: NextFetchRequestConfig } =
+    params.fresh ? { cache: "no-store" } : { next: { revalidate: 60 } };
 
-  return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`, {
-    next: { revalidate: 60 },
-  });
+  return apiFetch<PaginatedResult<Post>>(
+    `/posts?${query.toString()}`,
+    cacheInit,
+  );
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {

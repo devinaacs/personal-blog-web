@@ -24,9 +24,7 @@ export async function SiteHeader() {
               est. {settings.establishedYear}
             </span>
           </div>
-          <p className="font-mono text-sm text-zinc-400">
-            {settings.tagline}
-          </p>
+          <p className="font-mono text-sm text-zinc-400">{settings.tagline}</p>
         </div>
 
         <nav className="hidden flex-col gap-2 text-right font-mono text-sm sm:flex">

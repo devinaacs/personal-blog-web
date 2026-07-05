@@ -42,7 +42,7 @@ export function AdminLoginForm() {
   }
 
   return (
-    <div className="relative max-w-md w-full">
+    <div className="relative w-full max-w-md">
       <div className="bg-white p-8 md:p-12">
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold text-zinc-900">
@@ -88,9 +88,7 @@ export function AdminLoginForm() {
               value={password}
             />
             {error && (
-              <p className="mt-2 font-mono text-sm text-red-600">
-                ✗ {error}
-              </p>
+              <p className="mt-2 font-mono text-sm text-red-600">✗ {error}</p>
             )}
           </div>
 

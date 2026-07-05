@@ -3,13 +3,7 @@ import { format } from "date-fns";
 
 import { Post } from "@/types/post";
 
-export function BlogCard({
-  post,
-  isLarge,
-}: {
-  post: Post;
-  isLarge?: boolean;
-}) {
+export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
   const excerpt = `${post.paragraphs[0]?.slice(0, 200) ?? ""}...`;
   const date = format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase();
 

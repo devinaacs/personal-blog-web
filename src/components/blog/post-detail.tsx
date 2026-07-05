@@ -70,9 +70,7 @@ export function PostDetail({
                 {date}
               </time>
             </div>
-            <span className="font-mono text-sm">
-              {readingMinutes} min read
-            </span>
+            <span className="font-mono text-sm">{readingMinutes} min read</span>
           </div>
         </header>
 
@@ -138,9 +136,8 @@ export function PostDetail({
 
             <div className="mt-16 border-t-2 border-zinc-200 pt-8">
               <p className="font-mono text-sm text-zinc-600">
-                Thanks for reading. If this resonated with you, or if you
-                think I&apos;m completely wrong, I&apos;d love to hear about
-                it.
+                Thanks for reading. If this resonated with you, or if you think
+                I&apos;m completely wrong, I&apos;d love to hear about it.
               </p>
             </div>
           </div>

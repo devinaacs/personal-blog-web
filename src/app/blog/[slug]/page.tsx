@@ -47,7 +47,5 @@ export default async function BlogPostPage({
 
   const { prev, next } = await getSurroundingPosts(slug);
 
-  return (
-    <PostDetail nextSlug={next?.slug} post={post} prevSlug={prev?.slug} />
-  );
+  return <PostDetail nextSlug={next?.slug} post={post} prevSlug={prev?.slug} />;
 }
