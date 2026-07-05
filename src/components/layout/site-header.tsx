@@ -2,8 +2,11 @@ import Link from "next/link";
 
 import { WoodTexture } from "@/components/shared/wood-texture";
 import { siteConfig } from "@/config/site";
+import { getSiteSettings } from "@/lib/settings";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const settings = await getSiteSettings();
+
   return (
     <header className="relative overflow-hidden border-b border-zinc-800 bg-zinc-900 px-6 py-8">
       <WoodTexture />
@@ -14,13 +17,15 @@ export function SiteHeader() {
               className="text-4xl font-bold tracking-tight text-white md:text-5xl"
               href="/"
             >
-              {siteConfig.name}
+              {settings.siteName}
             </Link>
             <span className="mb-2 hidden h-2 w-2 rounded-full bg-zinc-500 md:inline-block" />
-            <span className="hidden text-zinc-500 md:inline">est. 2024</span>
+            <span className="hidden text-zinc-500 md:inline">
+              est. {settings.establishedYear}
+            </span>
           </div>
           <p className="font-mono text-sm text-zinc-400">
-            {siteConfig.tagline}
+            {settings.tagline}
           </p>
         </div>
 

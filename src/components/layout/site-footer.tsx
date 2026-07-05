@@ -1,7 +1,8 @@
 import { WoodTexture } from "@/components/shared/wood-texture";
-import { siteConfig } from "@/config/site";
+import { getSiteSettings } from "@/lib/settings";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const settings = await getSiteSettings();
   const year = new Date().getFullYear();
 
   return (
@@ -11,9 +12,9 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-12 grid gap-12 md:grid-cols-2">
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold">{siteConfig.name}</h3>
+            <h3 className="text-2xl font-bold">{settings.siteName}</h3>
             <p className="text-sm leading-relaxed text-zinc-400">
-              {siteConfig.description}
+              {settings.footerBlurb}
             </p>
             <div className="h-px w-24 bg-zinc-700" />
           </div>
@@ -25,21 +26,21 @@ export function SiteFooter() {
             <div className="space-y-2 text-zinc-300">
               <a
                 className="block transition-colors hover:text-white"
-                href={`mailto:${siteConfig.links.email}`}
+                href={`mailto:${settings.email}`}
               >
-                {siteConfig.links.email}
+                {settings.email}
               </a>
               <a
                 className="block transition-colors hover:text-white"
-                href={siteConfig.links.github}
+                href={settings.github}
               >
-                {siteConfig.links.github.replace("https://", "")}
+                {settings.github.replace("https://", "")}
               </a>
               <a
                 className="block transition-colors hover:text-white"
-                href={siteConfig.links.twitter}
+                href={settings.twitter}
               >
-                {siteConfig.links.twitter.replace("https://", "")}
+                {settings.twitter.replace("https://", "")}
               </a>
             </div>
           </div>

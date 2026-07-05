@@ -1,26 +1,15 @@
 import Image from "next/image";
 
 import { WoodTexture } from "@/components/shared/wood-texture";
+import { getSiteSettings } from "@/lib/settings";
 
-const currentlyUsing = [
-  "React / TypeScript",
-  "Neovim",
-  "Next.js",
-  "Too much coffee",
-  "Node.js",
-  "Mechanical keyboards",
-];
+export async function About({
+  postsWrittenCount,
+}: {
+  postsWrittenCount: number;
+}) {
+  const settings = await getSiteSettings();
 
-const otherInterests = [
-  "film photography",
-  "jazz records",
-  "urban exploration",
-  "analog notebooks",
-  "minimalist design",
-  "lo-fi beats",
-];
-
-export function About({ postsWrittenCount }: { postsWrittenCount: number }) {
   return (
     <section
       className="relative overflow-hidden bg-white px-6 py-20"
@@ -75,28 +64,9 @@ export function About({ postsWrittenCount }: { postsWrittenCount: number }) {
               </div>
 
               <div className="space-y-6 text-lg leading-relaxed text-zinc-700">
-                <p>
-                  <span className="font-bold text-zinc-900">
-                    Hey, I&apos;m Devina.
-                  </span>{" "}
-                  I build things with code during the day and write about it
-                  at night. Currently working as a software engineer,
-                  previously did some other stuff that seemed important at
-                  the time.
-                </p>
-
-                <p>
-                  Started this blog because I kept explaining the same
-                  concepts to different people. Figured it&apos;d be easier
-                  to write it once and send a link. Turns out I actually
-                  enjoy this whole writing thing.
-                </p>
-
-                <p>
-                  Not an expert, just someone who&apos;s made enough mistakes
-                  to know what doesn&apos;t work. If that&apos;s useful to
-                  you, stick around.
-                </p>
+                {settings.bio.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
               </div>
             </div>
 
@@ -105,7 +75,7 @@ export function About({ postsWrittenCount }: { postsWrittenCount: number }) {
                 Currently Using →
               </h3>
               <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-zinc-600">
-                {currentlyUsing.map((item) => (
+                {settings.currentlyUsing.map((item) => (
                   <div className="flex items-center gap-2" key={item}>
                     <div className="h-2 w-2 bg-zinc-900" />
                     <span>{item}</span>
@@ -119,7 +89,7 @@ export function About({ postsWrittenCount }: { postsWrittenCount: number }) {
                 Other Interests →
               </h3>
               <div className="flex flex-wrap gap-3">
-                {otherInterests.map((interest, index) => (
+                {settings.otherInterests.map((interest, index) => (
                   <span
                     className={`px-4 py-2 text-sm ${
                       index % 2 === 1
