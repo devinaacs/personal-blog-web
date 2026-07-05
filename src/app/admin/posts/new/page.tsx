@@ -1,0 +1,24 @@
+import { redirect } from "next/navigation";
+
+import { PostForm } from "@/components/admin/post-form";
+import { createMetadata } from "@/config/metadata";
+import { getAdminUser } from "@/lib/admin-session";
+import { listPublishedPosts } from "@/lib/posts";
+
+export const metadata = createMetadata("/admin/posts/new", {
+  title: "New Post",
+  robots: { index: false, follow: false },
+});
+
+export default async function NewPostPage() {
+  const user = await getAdminUser();
+
+  if (!user) {
+    redirect("/admin/login");
+  }
+
+  const { pagination } = await listPublishedPosts({ limit: 1, fresh: true });
+  const nextNumber = String(pagination.total + 1).padStart(3, "0");
+
+  return <PostForm nextNumber={nextNumber} />;
+}

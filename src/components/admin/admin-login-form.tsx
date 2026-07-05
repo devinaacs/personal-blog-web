@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -79,14 +81,24 @@ export function AdminLoginForm() {
             >
               Password
             </label>
-            <input
-              className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-lg text-zinc-900 transition-colors focus:bg-white focus:outline-none"
-              id="password"
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="•••••••"
-              type="password"
-              value={password}
-            />
+            <div className="relative">
+              <input
+                className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 pr-12 text-lg text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                id="password"
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="•••••••"
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <button
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-900"
+                onClick={() => setShowPassword((prev) => !prev)}
+                type="button"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {error && (
               <p className="mt-2 font-mono text-sm text-red-600">✗ {error}</p>
             )}
