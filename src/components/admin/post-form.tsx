@@ -11,16 +11,32 @@ function todayInputValue(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function PostForm({ nextNumber }: { nextNumber: string }) {
+export function PostForm({
+  number,
+  postId,
+  initialPost,
+}: {
+  number: string;
+  postId?: string;
+  initialPost?: Post;
+}) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [number] = useState(nextNumber);
-  const [publishedAt, setPublishedAt] = useState(todayInputValue());
-  const [paragraphs, setParagraphs] = useState(["", "", "", ""]);
-  const [quote, setQuote] = useState("");
-  const [quoteAuthor, setQuoteAuthor] = useState("");
-  const [subheading, setSubheading] = useState("");
-  const [listItems, setListItems] = useState(["", "", "", ""]);
+  const isEditMode = Boolean(postId);
+  const [title, setTitle] = useState(initialPost?.title ?? "");
+  const [publishedAt, setPublishedAt] = useState(
+    initialPost ? initialPost.publishedAt.slice(0, 10) : todayInputValue(),
+  );
+  const [paragraphs, setParagraphs] = useState(
+    initialPost ? [...initialPost.paragraphs] : ["", "", "", ""],
+  );
+  const [quote, setQuote] = useState(initialPost?.quote ?? "");
+  const [quoteAuthor, setQuoteAuthor] = useState(
+    initialPost?.quoteAuthor ?? "",
+  );
+  const [subheading, setSubheading] = useState(initialPost?.subheading ?? "");
+  const [listItems, setListItems] = useState(
+    initialPost ? [...initialPost.list] : ["", "", "", ""],
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -34,17 +50,24 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
   }
 
   function handleClose() {
-    const hasContent =
-      title.trim() ||
-      paragraphs.some((p) => p.trim()) ||
-      subheading.trim() ||
-      quote.trim() ||
-      listItems.some((item) => item.trim());
+    const isDirty = isEditMode
+      ? title !== (initialPost?.title ?? "") ||
+        publishedAt !== (initialPost?.publishedAt.slice(0, 10) ?? "") ||
+        subheading !== (initialPost?.subheading ?? "") ||
+        quote !== (initialPost?.quote ?? "") ||
+        quoteAuthor !== (initialPost?.quoteAuthor ?? "") ||
+        JSON.stringify(paragraphs) !==
+          JSON.stringify(initialPost?.paragraphs ?? []) ||
+        JSON.stringify(listItems) !== JSON.stringify(initialPost?.list ?? [])
+      : Boolean(
+          title.trim() ||
+          paragraphs.some((p) => p.trim()) ||
+          subheading.trim() ||
+          quote.trim() ||
+          listItems.some((item) => item.trim()),
+        );
 
-    if (
-      hasContent &&
-      !confirm("Discard this post? Your changes will be lost.")
-    ) {
+    if (isDirty && !confirm("Discard your changes? They will be lost.")) {
       return;
     }
 
@@ -65,8 +88,12 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/admin/posts", {
-        method: "POST",
+      const url = isEditMode
+        ? `/api/admin/posts/${postId}`
+        : "/api/admin/posts";
+      const method = isEditMode ? "PATCH" : "POST";
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -114,17 +141,21 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
   return (
     <div className="min-h-screen bg-zinc-900">
       <div className="sticky top-0 z-10 border-b border-zinc-700 bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Create New Post</h1>
+            <h1 className="text-2xl font-bold text-white">
+              {isEditMode ? "Edit Post" : "Create New Post"}
+            </h1>
             <p className="font-mono text-sm text-zinc-400">
-              {"// fill in the details below"}
+              {isEditMode
+                ? "// update your post"
+                : "// fill in the details below"}
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
-              className="flex items-center gap-2 border border-zinc-700 bg-zinc-800 px-4 py-2 text-white transition-colors hover:bg-zinc-700"
+              className="flex flex-1 items-center justify-center gap-2 border border-zinc-700 bg-zinc-800 px-4 py-2 text-white transition-colors hover:bg-zinc-700 sm:flex-none"
               onClick={() => setShowPreview((prev) => !prev)}
               type="button"
             >
@@ -135,7 +166,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
             </button>
 
             <button
-              className="flex items-center gap-2 bg-white px-6 py-2 font-bold text-zinc-900 transition-colors hover:bg-zinc-200 disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-2 bg-white px-4 py-2 font-bold text-zinc-900 transition-colors hover:bg-zinc-200 disabled:opacity-50 sm:flex-none sm:px-6"
               disabled={isSaving}
               onClick={handleSave}
               type="button"
@@ -145,7 +176,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
             </button>
 
             <button
-              className="flex h-10 w-10 items-center justify-center border border-zinc-700 bg-zinc-800 text-white transition-colors hover:bg-zinc-700"
+              className="flex h-10 w-10 shrink-0 items-center justify-center border border-zinc-700 bg-zinc-800 text-white transition-colors hover:bg-zinc-700"
               onClick={handleClose}
               type="button"
             >
@@ -155,7 +186,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {error && (
           <div className="mb-6 border-2 border-red-600 bg-red-950 px-4 py-3 font-mono text-sm text-red-400">
             ✗ {error}
@@ -164,7 +195,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
 
         {!showPreview ? (
           <div className="space-y-8">
-            <div className="space-y-6 bg-white p-8">
+            <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">
                   Basic Information
@@ -209,13 +240,15 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
                     value={number}
                   />
                   <p className="mt-1 font-mono text-xs text-zinc-500">
-                    Auto-assigned, next in sequence
+                    {isEditMode
+                      ? "Assigned when this post was created"
+                      : "Auto-assigned, next in sequence"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6 bg-white p-8">
+            <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">Content</h2>
               </div>
@@ -249,7 +282,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
               </div>
             </div>
 
-            <div className="space-y-6 bg-white p-8">
+            <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">
                   Optional Elements
@@ -298,7 +331,7 @@ export function PostForm({ nextNumber }: { nextNumber: string }) {
               </div>
             </div>
 
-            <div className="space-y-6 bg-white p-8">
+            <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">List Items</h2>
                 <p className="mt-1 text-sm text-zinc-600">

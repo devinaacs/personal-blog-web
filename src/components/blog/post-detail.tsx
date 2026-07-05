@@ -29,7 +29,7 @@ export function PostDetail({
       {prevSlug && (
         <Link
           aria-label="Previous post"
-          className="fixed top-1/2 left-6 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center border-2 border-zinc-900 bg-white text-zinc-900 transition-all hover:bg-zinc-900 hover:text-white"
+          className="fixed top-1/2 left-6 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center border-2 border-zinc-900 bg-white text-zinc-900 transition-all hover:bg-zinc-900 hover:text-white md:flex"
           href={`/blog/${prevSlug}`}
         >
           <ArrowLeft size={24} />
@@ -39,7 +39,7 @@ export function PostDetail({
       {nextSlug && (
         <Link
           aria-label="Next post"
-          className="fixed top-1/2 right-6 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center border-2 border-zinc-900 bg-white text-zinc-900 transition-all hover:bg-zinc-900 hover:text-white"
+          className="fixed top-1/2 right-6 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center border-2 border-zinc-900 bg-white text-zinc-900 transition-all hover:bg-zinc-900 hover:text-white md:flex"
           href={`/blog/${nextSlug}`}
         >
           <ArrowRight size={24} />

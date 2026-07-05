@@ -27,7 +27,6 @@ export default async function AdminDashboardPage() {
 
   const { items: posts, pagination } = await listPublishedPosts({
     limit: 100,
-    fresh: true,
   });
   const totalWords = posts.reduce(
     (sum, post) => sum + countWords(post.paragraphs),
@@ -39,9 +38,9 @@ export default async function AdminDashboardPage() {
       <WoodTexture />
 
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-900">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6">
           <div>
-            <h1 className="mb-1 text-3xl font-bold text-white">
+            <h1 className="mb-1 text-2xl font-bold text-white sm:text-3xl">
               Admin Dashboard
             </h1>
             <p className="font-mono text-sm text-zinc-400">
@@ -51,7 +50,7 @@ export default async function AdminDashboardPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              className="flex items-center gap-2 bg-white px-6 py-3 font-bold text-zinc-900 transition-colors hover:bg-zinc-200"
+              className="flex flex-1 items-center justify-center gap-2 bg-white px-4 py-3 font-bold text-zinc-900 transition-colors hover:bg-zinc-200 sm:flex-none sm:px-6"
               href="/admin/posts/new"
             >
               <Plus size={20} />
@@ -63,7 +62,7 @@ export default async function AdminDashboardPage() {
         </div>
       </header>
 
-      <div className="relative mx-auto max-w-7xl px-6 py-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="mb-8 grid gap-6 md:grid-cols-3">
           <div className="border-l-4 border-zinc-900 bg-white p-6">
             <div className="mb-2 text-4xl font-bold text-zinc-900">
@@ -88,7 +87,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white">
           <div className="h-2 bg-zinc-900" />
 
-          <div className="p-8">
+          <div className="p-4 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-zinc-900">All Posts</h2>
               <span className="font-mono text-sm text-zinc-500">

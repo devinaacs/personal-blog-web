@@ -7,9 +7,12 @@ type ApiSuccessResponse<T> = {
 
 export async function apiFetch<T>(
   path: string,
-  init?: RequestInit & { next?: NextFetchRequestConfig },
+  init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, init);
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+    ...init,
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     throw new Error(`API request to ${path} failed with ${response.status}`);
@@ -22,9 +25,12 @@ export async function apiFetch<T>(
 
 export async function apiFetchOrNull<T>(
   path: string,
-  init?: RequestInit & { next?: NextFetchRequestConfig },
+  init?: RequestInit,
 ): Promise<T | null> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, init);
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+    ...init,
+    cache: "no-store",
+  });
 
   if (response.status === 404) {
     return null;

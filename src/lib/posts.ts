@@ -2,25 +2,18 @@ import { apiFetch, apiFetchOrNull } from "@/lib/api";
 import { PaginatedResult, Post } from "@/types/post";
 
 export async function listPublishedPosts(
-  params: { page?: number; limit?: number; fresh?: boolean } = {},
+  params: { page?: number; limit?: number } = {},
 ): Promise<PaginatedResult<Post>> {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     limit: String(params.limit ?? 20),
   });
-  const cacheInit: RequestInit & { next?: NextFetchRequestConfig } =
-    params.fresh ? { cache: "no-store" } : { next: { revalidate: 60 } };
 
-  return apiFetch<PaginatedResult<Post>>(
-    `/posts?${query.toString()}`,
-    cacheInit,
-  );
+  return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`);
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  return apiFetchOrNull<Post>(`/posts/${slug}`, {
-    next: { revalidate: 60 },
-  });
+  return apiFetchOrNull<Post>(`/posts/${slug}`);
 }
 
 export async function getSurroundingPosts(

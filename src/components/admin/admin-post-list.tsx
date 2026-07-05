@@ -53,10 +53,10 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
     <div className="space-y-4">
       {posts.map((post) => (
         <div
-          className="group border-2 border-zinc-200 p-6 transition-all hover:border-zinc-900"
+          className="group border-2 border-zinc-200 p-4 transition-all hover:border-zinc-900 sm:p-6"
           key={post.id}
         >
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-3 sm:gap-4">
             <div className="grow">
               <div className="mb-2 flex items-center gap-3">
                 <span className="bg-zinc-900 px-2 py-1 font-mono text-xs text-white">
@@ -76,7 +76,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="flex shrink-0 items-center gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
               <Link
                 className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
                 href={`/admin/posts/${post.id}/edit`}

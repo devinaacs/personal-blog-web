@@ -17,8 +17,8 @@ export default async function NewPostPage() {
     redirect("/admin/login");
   }
 
-  const { pagination } = await listPublishedPosts({ limit: 1, fresh: true });
+  const { pagination } = await listPublishedPosts({ limit: 1 });
   const nextNumber = String(pagination.total + 1).padStart(3, "0");
 
-  return <PostForm nextNumber={nextNumber} />;
+  return <PostForm number={nextNumber} />;
 }
