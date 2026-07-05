@@ -5,9 +5,14 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_API_URL: z
+    .string()
+    .url()
+    .default("http://localhost:3001/api/v1"),
 });
 
 export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || undefined,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || undefined,
 });
