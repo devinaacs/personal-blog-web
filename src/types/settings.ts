@@ -7,8 +7,9 @@ export type SiteSettings = {
   currentlyUsing: string[];
   otherInterests: string[];
   email: string;
-  github: string;
-  twitter: string;
+  github: string | null;
+  threads: string | null;
+  linkedin: string | null;
   footerBlurb: string;
   updatedAt: string;
 };

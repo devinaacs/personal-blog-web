@@ -24,24 +24,38 @@ export async function SiteFooter() {
               Get in touch
             </h4>
             <div className="space-y-2 text-zinc-300">
-              <a
-                className="block transition-colors hover:text-white"
-                href={`mailto:${settings.email}`}
-              >
-                {settings.email}
-              </a>
-              <a
-                className="block transition-colors hover:text-white"
-                href={settings.github}
-              >
-                {settings.github.replace("https://", "")}
-              </a>
-              <a
-                className="block transition-colors hover:text-white"
-                href={settings.twitter}
-              >
-                {settings.twitter.replace("https://", "")}
-              </a>
+              {settings.email && (
+                <a
+                  className="block transition-colors hover:text-white"
+                  href={`mailto:${settings.email}`}
+                >
+                  {settings.email}
+                </a>
+              )}
+              {settings.github && (
+                <a
+                  className="block transition-colors hover:text-white"
+                  href={settings.github}
+                >
+                  {settings.github.replace("https://", "")}
+                </a>
+              )}
+              {settings.threads && (
+                <a
+                  className="block transition-colors hover:text-white"
+                  href={settings.threads}
+                >
+                  {settings.threads.replace("https://", "")}
+                </a>
+              )}
+              {settings.linkedin && (
+                <a
+                  className="block transition-colors hover:text-white"
+                  href={settings.linkedin}
+                >
+                  {settings.linkedin.replace("https://", "")}
+                </a>
+              )}
             </div>
           </div>
         </div>
