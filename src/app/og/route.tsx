@@ -9,7 +9,12 @@ const size = {
   height: 630,
 };
 
-export function GET() {
+export function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const title = searchParams.get("title") ?? siteConfig.tagline;
+  const subheading = searchParams.get("subheading") ?? siteConfig.description;
+  const label = searchParams.has("title") ? "blog" : siteConfig.tagline;
+
   return new ImageResponse(
     <div
       style={{
@@ -37,7 +42,7 @@ export function GET() {
           height: "100%",
           justifyContent: "center",
           overflow: "hidden",
-          padding: "64px 72px",
+          padding: "48px 72px",
           position: "relative",
           width: "100%",
         }}
@@ -69,15 +74,15 @@ export function GET() {
             width: "max-content",
           }}
         >
-          Open source
+          {siteConfig.name}
         </div>
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 24,
-            marginTop: 46,
+            gap: 16,
+            marginTop: 28,
             position: "relative",
           }}
         >
@@ -92,51 +97,48 @@ export function GET() {
               textTransform: "uppercase",
             }}
           >
-            {siteConfig.name}
+            {label}
           </p>
           <h1
             style={{
               color: "#f5f0e8",
-              fontSize: 92,
+              fontSize: title.length > 40 ? 64 : 92,
               fontWeight: 900,
               letterSpacing: "-0.03em",
-              lineHeight: 0.92,
+              lineHeight: 0.98,
               margin: 0,
               maxWidth: 880,
             }}
           >
-            Start building today
+            {title}
           </h1>
           <p
             style={{
               color: "#aaa39b",
               fontFamily: "sans-serif",
-              fontSize: 31,
-              lineHeight: 1.42,
+              fontSize: subheading.length > 100 ? 26 : 31,
+              lineHeight: 1.35,
               margin: 0,
               maxWidth: 910,
             }}
           >
-            Clone the repository, install dependencies, and start shipping. No
-            configuration, no hassle.
+            {subheading}
           </p>
-        </div>
-
-        <div
-          style={{
-            alignItems: "center",
-            border: "1px solid rgba(216, 173, 120, 0.3)",
-            bottom: 52,
-            color: "#d8ad78",
-            display: "flex",
-            fontFamily: "monospace",
-            fontSize: 24,
-            left: 72,
-            padding: "18px 24px",
-            position: "absolute",
-          }}
-        >
-          npm install && npm run dev
+          <div
+            style={{
+              alignItems: "center",
+              border: "1px solid rgba(216, 173, 120, 0.3)",
+              color: "#d8ad78",
+              display: "flex",
+              fontFamily: "monospace",
+              fontSize: 24,
+              marginTop: 12,
+              padding: "18px 24px",
+              width: "max-content",
+            }}
+          >
+            {siteConfig.url.replace(/^https?:\/\//, "")}
+          </div>
         </div>
       </div>
     </div>,

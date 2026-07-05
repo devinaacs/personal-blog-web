@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { PostDetail } from "@/components/blog/post-detail";
-import { createMetadata } from "@/config/metadata";
+import { createMetadata, metadata as baseMetadata } from "@/config/metadata";
 import {
   getPostBySlug,
   getSurroundingPosts,
@@ -27,9 +27,28 @@ export async function generateMetadata({
     return createMetadata(`/blog/${slug}`);
   }
 
+  const description = `${post.paragraphs[0]?.slice(0, 160) ?? ""}...`;
+  const ogParams = new URLSearchParams({ title: post.title });
+  if (post.subheading) {
+    ogParams.set("subheading", post.subheading);
+  }
+  const ogImage = `/og?${ogParams.toString()}`;
+
   return createMetadata(`/blog/${post.slug}`, {
     title: post.title,
-    description: `${post.paragraphs[0]?.slice(0, 160) ?? ""}...`,
+    description,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      title: post.title,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      ...baseMetadata.twitter,
+      title: post.title,
+      description,
+      images: [ogImage],
+    },
   });
 }
 

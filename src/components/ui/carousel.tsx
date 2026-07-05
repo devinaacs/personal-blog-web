@@ -95,6 +95,9 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return;
+    // Embla's scroll-state getters only exist once `api` is ready, so the
+    // initial sync must happen here rather than in a lazy useState initializer.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api);
     api.on("reInit", onSelect);
     api.on("select", onSelect);
