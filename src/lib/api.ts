@@ -19,3 +19,22 @@ export async function apiFetch<T>(
 
   return body.data;
 }
+
+export async function apiFetchOrNull<T>(
+  path: string,
+  init?: RequestInit & { next?: NextFetchRequestConfig },
+): Promise<T | null> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, init);
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`API request to ${path} failed with ${response.status}`);
+  }
+
+  const body = (await response.json()) as ApiSuccessResponse<T>;
+
+  return body.data;
+}
