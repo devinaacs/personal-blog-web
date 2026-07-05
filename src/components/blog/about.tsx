@@ -26,13 +26,15 @@ export async function About({
             <div className="relative">
               <div className="absolute -top-4 -left-4 h-full w-full border-2 border-zinc-900" />
               <div className="relative aspect-3/4 overflow-hidden bg-zinc-100">
-                <Image
-                  alt="workspace"
-                  className="object-cover grayscale"
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  src="https://images.unsplash.com/photo-1495121553079-4c61bcce1894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                />
+                {settings.workspaceImageUrl && (
+                  <Image
+                    alt="workspace"
+                    className="object-cover"
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    src={settings.workspaceImageUrl}
+                  />
+                )}
               </div>
             </div>
 

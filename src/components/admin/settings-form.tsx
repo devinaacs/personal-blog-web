@@ -20,6 +20,9 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [github, setGithub] = useState(settings.github ?? "");
   const [threads, setThreads] = useState(settings.threads ?? "");
   const [linkedin, setLinkedin] = useState(settings.linkedin ?? "");
+  const [workspaceImageUrl, setWorkspaceImageUrl] = useState(
+    settings.workspaceImageUrl ?? "",
+  );
   const [footerBlurb, setFooterBlurb] = useState(settings.footerBlurb);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,6 +45,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
       github !== (settings.github ?? "") ||
       threads !== (settings.threads ?? "") ||
       linkedin !== (settings.linkedin ?? "") ||
+      workspaceImageUrl !== (settings.workspaceImageUrl ?? "") ||
       footerBlurb !== settings.footerBlurb ||
       JSON.stringify(bio) !== JSON.stringify(settings.bio) ||
       JSON.stringify(currentlyUsing) !==
@@ -94,6 +98,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           github: github.trim() || null,
           threads: threads.trim() || null,
           linkedin: linkedin.trim() || null,
+          workspaceImageUrl: workspaceImageUrl.trim() || null,
           footerBlurb: footerBlurb.trim(),
         }),
       });
@@ -239,6 +244,43 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
               >
                 + Add Paragraph
               </button>
+            </div>
+          </div>
+
+          <div className="space-y-6 bg-white p-4 sm:p-8">
+            <div className="border-l-4 border-zinc-900 pl-4">
+              <h2 className="text-2xl font-bold text-zinc-900">
+                Workspace Photo
+              </h2>
+              <p className="mt-1 text-sm text-zinc-600">
+                Image shown next to your bio in the About section
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-[1fr_auto]">
+              <div>
+                <label className="mb-2 block font-mono text-sm text-zinc-700">
+                  Image URL
+                </label>
+                <input
+                  className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                  onChange={(event) => setWorkspaceImageUrl(event.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  type="url"
+                  value={workspaceImageUrl}
+                />
+              </div>
+
+              <div className="h-24 w-24 shrink-0 overflow-hidden border-2 border-zinc-900 bg-zinc-100">
+                {workspaceImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- live preview of an arbitrary admin-entered URL
+                  <img
+                    alt="Workspace preview"
+                    className="h-full w-full object-cover"
+                    src={workspaceImageUrl}
+                  />
+                )}
+              </div>
             </div>
           </div>
 

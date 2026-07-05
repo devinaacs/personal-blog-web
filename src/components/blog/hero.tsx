@@ -36,7 +36,7 @@ export function Hero() {
             <div className="absolute -top-3 -left-3 h-6 w-6 bg-zinc-900" />
             <p className="text-lg leading-relaxed font-light text-zinc-700">
               Welcome to my digital corner. I write about the things that keep
-              me up at night—usually bugs in my code, but sometimes life stuff
+              me up at night, usually bugs in my code, but sometimes life stuff
               too. No templates here, just raw thoughts typed out at 2am.
             </p>
           </div>
