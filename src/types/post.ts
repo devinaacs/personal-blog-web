@@ -9,6 +9,7 @@ export type Post = {
   quoteAuthor: string | null;
   paragraphs: string[];
   list: string[];
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
 };

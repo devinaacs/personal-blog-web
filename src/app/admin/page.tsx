@@ -7,7 +7,7 @@ import { AdminPostList } from "@/components/admin/admin-post-list";
 import { WoodTexture } from "@/components/shared/wood-texture";
 import { createMetadata } from "@/config/metadata";
 import { getAdminUser } from "@/lib/admin-session";
-import { listPublishedPosts } from "@/lib/posts";
+import { listAllPostsForAdmin } from "@/lib/posts";
 
 export const metadata = createMetadata("/admin", {
   title: "Admin Dashboard",
@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
     redirect("/admin/login");
   }
 
-  const { items: posts, pagination } = await listPublishedPosts({
+  const { items: posts, pagination } = await listAllPostsForAdmin({
     limit: 100,
   });
   const totalWords = posts.reduce(

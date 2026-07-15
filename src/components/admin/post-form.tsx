@@ -134,6 +134,7 @@ export function PostForm({
     quoteAuthor: quoteAuthor || null,
     paragraphs: paragraphs.filter((p) => p.trim() !== ""),
     list: listItems.filter((item) => item.trim() !== ""),
+    archived: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
