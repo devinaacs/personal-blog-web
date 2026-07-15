@@ -6,6 +6,7 @@ import { Eye, Save, X } from "lucide-react";
 
 import { PostArticle } from "@/components/blog/post-article";
 import { Post } from "@/types/post";
+import { Category, Tag } from "@/types/taxonomy";
 
 function todayInputValue(): string {
   return new Date().toISOString().slice(0, 10);
@@ -15,10 +16,14 @@ export function PostForm({
   number,
   postId,
   initialPost,
+  categories,
+  tags,
 }: {
   number: string;
   postId?: string;
   initialPost?: Post;
+  categories: Category[];
+  tags: Tag[];
 }) {
   const router = useRouter();
   const isEditMode = Boolean(postId);
@@ -37,9 +42,23 @@ export function PostForm({
   const [listItems, setListItems] = useState(
     initialPost ? [...initialPost.list] : ["", "", "", ""],
   );
+  const [categoryId, setCategoryId] = useState(
+    initialPost?.category?.id ?? "",
+  );
+  const [selectedTagIds, setSelectedTagIds] = useState(
+    initialPost ? initialPost.tags.map((tag) => tag.id) : [],
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  function toggleTag(tagId: string) {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
+    );
+  }
 
   function handleParagraphChange(index: number, value: string) {
     setParagraphs((prev) => prev.map((p, i) => (i === index ? value : p)));
@@ -56,15 +75,22 @@ export function PostForm({
         subheading !== (initialPost?.subheading ?? "") ||
         quote !== (initialPost?.quote ?? "") ||
         quoteAuthor !== (initialPost?.quoteAuthor ?? "") ||
+        categoryId !== (initialPost?.category?.id ?? "") ||
         JSON.stringify(paragraphs) !==
           JSON.stringify(initialPost?.paragraphs ?? []) ||
-        JSON.stringify(listItems) !== JSON.stringify(initialPost?.list ?? [])
+        JSON.stringify(listItems) !== JSON.stringify(initialPost?.list ?? []) ||
+        JSON.stringify([...selectedTagIds].sort()) !==
+          JSON.stringify(
+            (initialPost?.tags.map((tag) => tag.id) ?? []).sort(),
+          )
       : Boolean(
           title.trim() ||
           paragraphs.some((p) => p.trim()) ||
           subheading.trim() ||
           quote.trim() ||
-          listItems.some((item) => item.trim()),
+          listItems.some((item) => item.trim()) ||
+          categoryId ||
+          selectedTagIds.length > 0,
         );
 
     if (isDirty && !confirm("Discard your changes? They will be lost.")) {
@@ -82,6 +108,11 @@ export function PostForm({
 
     if (!title.trim() || cleanParagraphs.length === 0) {
       setError("Title and at least one paragraph are required.");
+      return;
+    }
+
+    if (!categoryId) {
+      setError("Please select a category.");
       return;
     }
 
@@ -104,6 +135,8 @@ export function PostForm({
           quote: quote.trim() || undefined,
           quoteAuthor: quoteAuthor.trim() || undefined,
           list: cleanList.length > 0 ? cleanList : undefined,
+          categoryId,
+          tagIds: selectedTagIds,
         }),
       });
       const body = (await response.json()) as {
@@ -135,6 +168,8 @@ export function PostForm({
     paragraphs: paragraphs.filter((p) => p.trim() !== ""),
     list: listItems.filter((item) => item.trim() !== ""),
     archived: false,
+    category: categories.find((c) => c.id === categoryId) ?? null,
+    tags: tags.filter((tag) => selectedTagIds.includes(tag.id)),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -245,6 +280,73 @@ export function PostForm({
                       ? "Assigned when this post was created"
                       : "Auto-assigned, next in sequence"}
                   </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 bg-white p-4 sm:p-8">
+              <div className="border-l-4 border-zinc-900 pl-4">
+                <h2 className="text-2xl font-bold text-zinc-900">
+                  Category &amp; Tags
+                </h2>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="mb-2 block font-mono text-sm text-zinc-700">
+                    Category *
+                  </label>
+                  {categories.length === 0 ? (
+                    <p className="font-mono text-sm text-zinc-500">
+                      No categories yet — create one in Admin &gt;
+                      Categories.
+                    </p>
+                  ) : (
+                    <select
+                      className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                      onChange={(event) => setCategoryId(event.target.value)}
+                      value={categoryId}
+                    >
+                      <option value="">Select a category…</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block font-mono text-sm text-zinc-700">
+                    Tags
+                  </label>
+                  {tags.length === 0 ? (
+                    <p className="font-mono text-sm text-zinc-500">
+                      No tags yet — create some in Admin &gt; Tags.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag) => {
+                        const isSelected = selectedTagIds.includes(tag.id);
+
+                        return (
+                          <button
+                            className={`border-2 px-3 py-2 font-mono text-sm transition-colors ${
+                              isSelected
+                                ? "border-zinc-900 bg-zinc-900 text-white"
+                                : "border-zinc-300 bg-zinc-50 text-zinc-700 hover:border-zinc-900"
+                            }`}
+                            key={tag.id}
+                            onClick={() => toggleTag(tag.id)}
+                            type="button"
+                          >
+                            {tag.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

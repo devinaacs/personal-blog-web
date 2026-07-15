@@ -1,3 +1,5 @@
+import { Category, Tag } from "@/types/taxonomy";
+
 export type Post = {
   id: string;
   slug: string;
@@ -10,6 +12,8 @@ export type Post = {
   paragraphs: string[];
   list: string[];
   archived: boolean;
+  category: Category | null;
+  tags: Tag[];
   createdAt: string;
   updatedAt: string;
 };

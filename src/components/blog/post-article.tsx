@@ -31,7 +31,7 @@ export function PostArticle({
           {post.title}
         </h1>
 
-        <div className="flex items-center gap-6 text-zinc-400">
+        <div className="flex flex-wrap items-center gap-6 text-zinc-400">
           <div className="flex items-center gap-3">
             <div className="h-px w-12 bg-zinc-600" />
             <time className="font-mono text-sm tracking-wider uppercase">
@@ -39,7 +39,29 @@ export function PostArticle({
             </time>
           </div>
           <span className="font-mono text-sm">{readingMinutes} min read</span>
+          {post.category && (
+            <Link
+              className="border border-zinc-600 px-3 py-1 font-mono text-sm text-zinc-300 transition-colors hover:border-white hover:text-white"
+              href={`/blog/category/${post.category.slug}`}
+            >
+              {post.category.name}
+            </Link>
+          )}
         </div>
+
+        {post.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <Link
+                className="font-mono text-sm text-zinc-500 transition-colors hover:text-white"
+                href={`/blog/tag/${tag.slug}`}
+                key={tag.id}
+              >
+                #{tag.name}
+              </Link>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="bg-white">

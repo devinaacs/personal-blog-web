@@ -24,6 +24,11 @@ export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
           <time className="font-mono text-xs tracking-wider text-zinc-500 uppercase">
             {date}
           </time>
+          {post.category && (
+            <span className="border border-zinc-300 px-2 py-0.5 font-mono text-xs tracking-wider text-zinc-600 uppercase">
+              {post.category.name}
+            </span>
+          )}
         </div>
 
         <h3

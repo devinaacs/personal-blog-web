@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Settings } from "lucide-react";
+import { Folder, Plus, Settings, Tag as TagIcon } from "lucide-react";
 
 import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { AdminPostList } from "@/components/admin/admin-post-list";
@@ -55,6 +55,22 @@ export default async function AdminDashboardPage() {
             >
               <Plus size={20} />
               New Post
+            </Link>
+
+            <Link
+              className="flex items-center gap-2 border border-zinc-700 bg-zinc-800 px-4 py-3 text-white transition-colors hover:bg-zinc-700"
+              href="/admin/categories"
+            >
+              <Folder size={18} />
+              <span className="font-mono text-sm">Categories</span>
+            </Link>
+
+            <Link
+              className="flex items-center gap-2 border border-zinc-700 bg-zinc-800 px-4 py-3 text-white transition-colors hover:bg-zinc-700"
+              href="/admin/tags"
+            >
+              <TagIcon size={18} />
+              <span className="font-mono text-sm">Tags</span>
             </Link>
 
             <Link

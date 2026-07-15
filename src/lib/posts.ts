@@ -3,12 +3,19 @@ import { apiFetch, apiFetchOrNull } from "@/lib/api";
 import { PaginatedResult, Post } from "@/types/post";
 
 export async function listPublishedPosts(
-  params: { page?: number; limit?: number } = {},
+  params: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    tag?: string;
+  } = {},
 ): Promise<PaginatedResult<Post>> {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     limit: String(params.limit ?? 20),
   });
+  if (params.category) query.set("category", params.category);
+  if (params.tag) query.set("tag", params.tag);
 
   return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`);
 }

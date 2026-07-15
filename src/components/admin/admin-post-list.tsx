@@ -142,6 +142,24 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                 <p className="line-clamp-2 text-sm text-zinc-600">
                   {post.paragraphs[0]?.slice(0, 150)}...
                 </p>
+
+                {(post.category ?? post.tags.length > 0) && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {post.category && (
+                      <span className="border border-zinc-900 px-2 py-0.5 font-mono text-xs text-zinc-900">
+                        {post.category.name}
+                      </span>
+                    )}
+                    {post.tags.map((tag) => (
+                      <span
+                        className="bg-zinc-100 px-2 py-0.5 font-mono text-xs text-zinc-600"
+                        key={tag.id}
+                      >
+                        #{tag.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex shrink-0 items-center gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
