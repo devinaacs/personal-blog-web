@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Archive, ArchiveRestore, Edit, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, Edit, Pin, PinOff, Trash2 } from "lucide-react";
 
 import { Post } from "@/types/post";
+
+const MAX_PINNED_POSTS = 3;
 
 type Filter = "active" | "archived" | "all";
 
@@ -14,9 +16,11 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
+  const [pinningId, setPinningId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("active");
 
   const archivedCount = posts.filter((post) => post.archived).length;
+  const pinnedCount = posts.filter((post) => post.pinned).length;
   const visiblePosts = useMemo(() => {
     if (filter === "all") return posts;
     if (filter === "archived") return posts.filter((post) => post.archived);
@@ -68,6 +72,29 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
       router.refresh();
     } finally {
       setArchivingId(null);
+    }
+  }
+
+  async function handleTogglePin(post: Post) {
+    setPinningId(post.id);
+
+    try {
+      const response = await fetch(`/api/admin/posts/${post.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pinned: !post.pinned }),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json()) as { message?: string };
+
+        alert(body.message ?? "Failed to update post");
+        return;
+      }
+
+      router.refresh();
+    } finally {
+      setPinningId(null);
     }
   }
 
@@ -128,6 +155,12 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                   <time className="font-mono text-xs tracking-wider text-zinc-500 uppercase">
                     {format(new Date(post.publishedAt), "MMM d, yyyy")}
                   </time>
+                  {post.pinned && (
+                    <span className="flex items-center gap-1 border border-zinc-900 bg-zinc-900 px-2 py-1 font-mono text-xs tracking-wider text-white uppercase">
+                      <Pin size={12} />
+                      Pinned
+                    </span>
+                  )}
                   {post.archived && (
                     <span className="border border-zinc-400 px-2 py-1 font-mono text-xs tracking-wider text-zinc-500 uppercase">
                       Archived
@@ -163,6 +196,25 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
               </div>
 
               <div className="flex shrink-0 items-center gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+                <button
+                  className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white disabled:opacity-50"
+                  disabled={
+                    pinningId === post.id ||
+                    (!post.pinned && pinnedCount >= MAX_PINNED_POSTS)
+                  }
+                  onClick={() => handleTogglePin(post)}
+                  title={
+                    post.pinned
+                      ? "Unpin post"
+                      : pinnedCount >= MAX_PINNED_POSTS
+                        ? `Only ${MAX_PINNED_POSTS} posts can be pinned at once`
+                        : "Pin post"
+                  }
+                  type="button"
+                >
+                  {post.pinned ? <PinOff size={18} /> : <Pin size={18} />}
+                </button>
+
                 <button
                   className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white disabled:opacity-50"
                   disabled={archivingId === post.id}

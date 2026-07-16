@@ -13,6 +13,7 @@ export type Post = {
   paragraphs: string[];
   list: string[];
   archived: boolean;
+  pinned: boolean;
   category: Category | null;
   tags: Tag[];
   createdAt: string;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { Pin } from "lucide-react";
 
 import { getPostExcerpt } from "@/lib/posts";
 import { Post } from "@/types/post";
@@ -15,6 +16,13 @@ export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
       }`}
       href={`/blog/${post.slug}`}
     >
+      {post.pinned && (
+        <div className="absolute top-0 left-0 z-10 flex items-center gap-1 bg-zinc-900 px-3 py-1 font-mono text-xs text-white">
+          <Pin size={12} />
+          Pinned
+        </div>
+      )}
+
       <div className="absolute top-0 right-0 bg-zinc-900 px-3 py-1 font-mono text-xs text-white">
         {post.number}
       </div>
