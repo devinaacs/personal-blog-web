@@ -6,6 +6,7 @@ export type Post = {
   title: string;
   number: string;
   publishedAt: string;
+  excerpt: string | null;
   subheading: string | null;
   quote: string | null;
   quoteAuthor: string | null;

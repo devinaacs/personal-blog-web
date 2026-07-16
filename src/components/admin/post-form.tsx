@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, Save, X } from "lucide-react";
 
 import { PostArticle } from "@/components/blog/post-article";
+import { slugify } from "@/lib/slugify";
 import { Post } from "@/types/post";
 import { Category, Tag } from "@/types/taxonomy";
 
@@ -28,6 +29,9 @@ export function PostForm({
   const router = useRouter();
   const isEditMode = Boolean(postId);
   const [title, setTitle] = useState(initialPost?.title ?? "");
+  const [slug, setSlug] = useState(initialPost?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(isEditMode);
+  const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
   const [publishedAt, setPublishedAt] = useState(
     initialPost ? initialPost.publishedAt.slice(0, 10) : todayInputValue(),
   );
@@ -52,6 +56,23 @@ export function PostForm({
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  function handleTitleChange(value: string) {
+    setTitle(value);
+    if (!slugTouched) {
+      setSlug(slugify(value));
+    }
+  }
+
+  function handleSlugChange(value: string) {
+    if (value.trim() === "") {
+      setSlug(slugify(title));
+      setSlugTouched(false);
+      return;
+    }
+    setSlug(value);
+    setSlugTouched(true);
+  }
+
   function toggleTag(tagId: string) {
     setSelectedTagIds((prev) =>
       prev.includes(tagId)
@@ -71,6 +92,8 @@ export function PostForm({
   function handleClose() {
     const isDirty = isEditMode
       ? title !== (initialPost?.title ?? "") ||
+        slug !== (initialPost?.slug ?? "") ||
+        excerpt !== (initialPost?.excerpt ?? "") ||
         publishedAt !== (initialPost?.publishedAt.slice(0, 10) ?? "") ||
         subheading !== (initialPost?.subheading ?? "") ||
         quote !== (initialPost?.quote ?? "") ||
@@ -85,6 +108,8 @@ export function PostForm({
           )
       : Boolean(
           title.trim() ||
+          slug.trim() ||
+          excerpt.trim() ||
           paragraphs.some((p) => p.trim()) ||
           subheading.trim() ||
           quote.trim() ||
@@ -128,8 +153,10 @@ export function PostForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
+          slug: slug.trim() || undefined,
           number,
           publishedAt: new Date(publishedAt).toISOString(),
+          excerpt: excerpt.trim() || undefined,
           paragraphs: cleanParagraphs,
           subheading: subheading.trim() || undefined,
           quote: quote.trim() || undefined,
@@ -158,10 +185,11 @@ export function PostForm({
 
   const previewPost: Post = {
     id: "preview",
-    slug: "preview",
+    slug: slug || "preview",
     title: title || "Your title here...",
     number: number || "000",
     publishedAt: new Date(publishedAt).toISOString(),
+    excerpt: excerpt || null,
     subheading: subheading || null,
     quote: quote || null,
     quoteAuthor: quoteAuthor || null,
@@ -245,11 +273,44 @@ export function PostForm({
                   </label>
                   <input
                     className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-lg text-zinc-900 transition-colors focus:bg-white focus:outline-none"
-                    onChange={(event) => setTitle(event.target.value)}
+                    onChange={(event) => handleTitleChange(event.target.value)}
                     placeholder="the art of overthinking..."
                     type="text"
                     value={title}
                   />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block font-mono text-sm text-zinc-700">
+                    Slug
+                  </label>
+                  <input
+                    className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 font-mono text-sm text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                    onChange={(event) => handleSlugChange(event.target.value)}
+                    placeholder="the-art-of-overthinking"
+                    type="text"
+                    value={slug}
+                  />
+                  <p className="mt-1 font-mono text-xs text-zinc-500">
+                    /blog/{slug || "your-slug-here"} — auto-generated from the
+                    title, clear the field to resume auto-generating
+                  </p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block font-mono text-sm text-zinc-700">
+                    Excerpt
+                  </label>
+                  <textarea
+                    className="w-full resize-none border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                    onChange={(event) => setExcerpt(event.target.value)}
+                    placeholder="A short summary shown on the blog list..."
+                    rows={2}
+                    value={excerpt}
+                  />
+                  <p className="mt-1 font-mono text-xs text-zinc-500">
+                    Falls back to the first paragraph if left empty
+                  </p>
                 </div>
 
                 <div>

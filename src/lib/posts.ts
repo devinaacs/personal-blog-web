@@ -2,6 +2,14 @@ import { adminApiFetch } from "@/lib/admin-api";
 import { apiFetch, apiFetchOrNull } from "@/lib/api";
 import { PaginatedResult, Post } from "@/types/post";
 
+export function getPostExcerpt(post: Post): string {
+  if (post.excerpt) {
+    return post.excerpt;
+  }
+
+  return `${post.paragraphs[0]?.slice(0, 200) ?? ""}...`;
+}
+
 export async function listPublishedPosts(
   params: {
     page?: number;

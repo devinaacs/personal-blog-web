@@ -27,7 +27,9 @@ export async function generateMetadata({
     return createMetadata(`/blog/${slug}`);
   }
 
-  const description = `${post.paragraphs[0]?.slice(0, 160) ?? ""}...`;
+  const description = post.excerpt
+    ? post.excerpt.slice(0, 160)
+    : `${post.paragraphs[0]?.slice(0, 160) ?? ""}...`;
   const ogParams = new URLSearchParams({ title: post.title });
   if (post.subheading) {
     ogParams.set("subheading", post.subheading);
