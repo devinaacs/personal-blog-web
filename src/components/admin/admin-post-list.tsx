@@ -4,7 +4,15 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Archive, ArchiveRestore, Edit, Pin, PinOff, Trash2 } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Edit,
+  Pin,
+  PinOff,
+  Trash2,
+  Users,
+} from "lucide-react";
 
 import { Post } from "@/types/post";
 
@@ -176,6 +184,11 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                   {post.paragraphs[0]?.slice(0, 150)}...
                 </p>
 
+                <div className="mt-2 flex items-center gap-4 font-mono text-xs text-zinc-500">
+                  <span>👏 {post.clapCount.toLocaleString()}</span>
+                  <span>🔗 {post.shareCount.toLocaleString()}</span>
+                </div>
+
                 {(post.category ?? post.tags.length > 0) && (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     {post.category && (
@@ -196,6 +209,14 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
               </div>
 
               <div className="flex shrink-0 items-center gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+                <Link
+                  className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                  href={`/admin/posts/${post.id}/engagement`}
+                  title="View who clapped or shared"
+                >
+                  <Users size={18} />
+                </Link>
+
                 <button
                   className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white disabled:opacity-50"
                   disabled={

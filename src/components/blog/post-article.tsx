@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 
+import { ClapButton } from "@/components/blog/clap-button";
+import { ShareButtons } from "@/components/blog/share-buttons";
+import { env } from "@/lib/env";
 import { estimateReadingMinutes } from "@/lib/reading-time";
 import { Post } from "@/types/post";
 
@@ -125,10 +128,19 @@ export function PostArticle({
           )}
 
           <div className="mt-16 border-t-2 border-zinc-200 pt-8">
-            <p className="font-mono text-sm text-zinc-600">
+            <p className="mb-8 font-mono text-sm text-zinc-600">
               Thanks for reading. If this resonated with you, or if you think
               I&apos;m completely wrong, I&apos;d love to hear about it.
             </p>
+
+            <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <ClapButton initialCount={post.clapCount} slug={post.slug} />
+              <ShareButtons
+                slug={post.slug}
+                title={post.title}
+                url={`${env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`}
+              />
+            </div>
           </div>
         </div>
       </div>

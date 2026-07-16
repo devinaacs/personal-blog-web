@@ -197,6 +197,8 @@ export function PostForm({
     list: listItems.filter((item) => item.trim() !== ""),
     archived: false,
     pinned: initialPost?.pinned ?? false,
+    clapCount: initialPost?.clapCount ?? 0,
+    shareCount: initialPost?.shareCount ?? 0,
     category: categories.find((c) => c.id === categoryId) ?? null,
     tags: tags.filter((tag) => selectedTagIds.includes(tag.id)),
     createdAt: new Date().toISOString(),

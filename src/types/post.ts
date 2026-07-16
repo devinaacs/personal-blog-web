@@ -14,6 +14,8 @@ export type Post = {
   list: string[];
   archived: boolean;
   pinned: boolean;
+  clapCount: number;
+  shareCount: number;
   category: Category | null;
   tags: Tag[];
   createdAt: string;
