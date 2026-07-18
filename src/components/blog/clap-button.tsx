@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { HandClapIcon } from "@/components/icons/hand-clap-icon";
 import { MAX_CLAPS_PER_READER } from "@/lib/engagement-constants";
 
 type ClapApiResult = {
@@ -86,19 +87,15 @@ export function ClapButton({
       }
       type="button"
     >
-      <span
-        className={`text-2xl transition-transform duration-200 ${
+      <HandClapIcon
+        className={`transition-transform duration-200 ${
           isBouncing ? "scale-125" : "scale-100"
         }`}
-      >
-        👏
-      </span>
+        size={24}
+      />
       <span className="font-mono text-sm">
-        {postClapCount.toLocaleString()}
         {hasClapped && (
-          <span className="ml-2 opacity-70">
-            (you: {readerClapCount}/{MAX_CLAPS_PER_READER})
-          </span>
+          <span className="ml-2 opacity-70">{readerClapCount}</span>
         )}
       </span>
     </button>
