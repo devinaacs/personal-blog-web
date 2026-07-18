@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { getPostExcerpt } from "@/lib/posts";
 import { Post } from "@/types/post";
 
 const MAX_PINNED_POSTS = 3;
@@ -181,7 +182,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                 </h3>
 
                 <p className="line-clamp-2 text-sm text-zinc-600">
-                  {post.paragraphs[0]?.slice(0, 150)}...
+                  {getPostExcerpt(post).slice(0, 150)}
                 </p>
 
                 <div className="mt-2 flex items-center gap-4 font-mono text-xs text-zinc-500">

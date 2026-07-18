@@ -1,5 +1,6 @@
 import { adminApiFetch } from "@/lib/admin-api";
 import { apiFetch, apiFetchOrNull } from "@/lib/api";
+import { getFirstParagraphText } from "@/lib/content-blocks";
 import { PaginatedResult, Post } from "@/types/post";
 
 export function getPostExcerpt(post: Post): string {
@@ -7,7 +8,7 @@ export function getPostExcerpt(post: Post): string {
     return post.excerpt;
   }
 
-  return `${post.paragraphs[0]?.slice(0, 200) ?? ""}...`;
+  return `${getFirstParagraphText(post.content).slice(0, 200)}...`;
 }
 
 export async function listPublishedPosts(

@@ -6,7 +6,70 @@ import { ClapButton } from "@/components/blog/clap-button";
 import { ShareButtons } from "@/components/blog/share-buttons";
 import { env } from "@/lib/env";
 import { estimateReadingMinutes } from "@/lib/reading-time";
+import { ContentBlock } from "@/types/content-block";
 import { Post } from "@/types/post";
+
+function ContentBlockView({
+  block,
+  isFirstParagraph,
+}: {
+  block: ContentBlock;
+  isFirstParagraph: boolean;
+}) {
+  switch (block.type) {
+    case "paragraph":
+      return isFirstParagraph ? (
+        <p className="text-xl leading-relaxed text-zinc-700">
+          <span className="float-left mt-2 mr-3 text-7xl leading-none font-bold text-zinc-900">
+            {block.text.charAt(0)}
+          </span>
+          {block.text.slice(1)}
+        </p>
+      ) : (
+        <p className="text-lg leading-relaxed text-zinc-700">{block.text}</p>
+      );
+
+    case "heading":
+      return (
+        <div className="my-12 border-l-4 border-zinc-900 pl-8">
+          <h2 className="text-3xl font-bold text-zinc-900">{block.text}</h2>
+        </div>
+      );
+
+    case "quote":
+      return (
+        <blockquote className="relative my-16">
+          <div className="absolute top-0 -left-4 h-full w-1 bg-zinc-900" />
+          <div className="bg-zinc-50 p-8 md:p-12">
+            <p className="mb-4 text-2xl leading-relaxed font-bold text-zinc-900 md:text-3xl">
+              &ldquo;{block.text}&rdquo;
+            </p>
+            {block.author && (
+              <cite className="font-mono text-sm text-zinc-600 not-italic">
+                — {block.author}
+              </cite>
+            )}
+          </div>
+        </blockquote>
+      );
+
+    case "list":
+      return (
+        <div className="my-12 space-y-4">
+          {block.items.map((item, itemIndex) => (
+            <div className="flex items-start gap-4" key={itemIndex}>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-zinc-900 font-mono text-sm text-white">
+                {itemIndex + 1}
+              </div>
+              <p className="pt-1 text-lg leading-relaxed text-zinc-700">
+                {item}
+              </p>
+            </div>
+          ))}
+        </div>
+      );
+  }
+}
 
 export function PostArticle({
   post,
@@ -18,8 +81,10 @@ export function PostArticle({
   nextSlug?: string;
 }) {
   const date = format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase();
-  const readingMinutes = estimateReadingMinutes(post.paragraphs);
-  const subheadingAfterIndex = Math.min(2, post.paragraphs.length - 1);
+  const readingMinutes = estimateReadingMinutes(post.content);
+  const firstParagraphIndex = post.content.findIndex(
+    (block) => block.type === "paragraph",
+  );
 
   return (
     <article className="relative mx-auto max-w-4xl px-6 py-20">
@@ -71,61 +136,13 @@ export function PostArticle({
         <div className="h-2 bg-zinc-900" />
 
         <div className="space-y-8 p-8 md:p-16">
-          {post.paragraphs.map((paragraph, index) => (
-            <div key={index}>
-              {index === 0 ? (
-                <p className="text-xl leading-relaxed text-zinc-700">
-                  <span className="float-left mt-2 mr-3 text-7xl leading-none font-bold text-zinc-900">
-                    {paragraph.charAt(0)}
-                  </span>
-                  {paragraph.slice(1)}
-                </p>
-              ) : (
-                <p className="text-lg leading-relaxed text-zinc-700">
-                  {paragraph}
-                </p>
-              )}
-
-              {index === subheadingAfterIndex && post.subheading && (
-                <div className="my-12 border-l-4 border-zinc-900 pl-8">
-                  <h2 className="text-3xl font-bold text-zinc-900">
-                    {post.subheading}
-                  </h2>
-                </div>
-              )}
-            </div>
+          {post.content.map((block, index) => (
+            <ContentBlockView
+              block={block}
+              isFirstParagraph={index === firstParagraphIndex}
+              key={index}
+            />
           ))}
-
-          {post.quote && (
-            <blockquote className="relative my-16">
-              <div className="absolute top-0 -left-4 h-full w-1 bg-zinc-900" />
-              <div className="bg-zinc-50 p-8 md:p-12">
-                <p className="mb-4 text-2xl leading-relaxed font-bold text-zinc-900 md:text-3xl">
-                  &ldquo;{post.quote}&rdquo;
-                </p>
-                {post.quoteAuthor && (
-                  <cite className="font-mono text-sm text-zinc-600 not-italic">
-                    — {post.quoteAuthor}
-                  </cite>
-                )}
-              </div>
-            </blockquote>
-          )}
-
-          {post.list.length > 0 && (
-            <div className="my-12 space-y-4">
-              {post.list.map((item, index) => (
-                <div className="flex items-start gap-4" key={index}>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-zinc-900 font-mono text-sm text-white">
-                    {index + 1}
-                  </div>
-                  <p className="pt-1 text-lg leading-relaxed text-zinc-700">
-                    {item}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
 
           <div className="mt-16 border-t-2 border-zinc-200 pt-8">
             <p className="mb-8 font-mono text-sm text-zinc-600">

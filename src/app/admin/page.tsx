@@ -7,15 +7,17 @@ import { AdminPostList } from "@/components/admin/admin-post-list";
 import { WoodTexture } from "@/components/shared/wood-texture";
 import { createMetadata } from "@/config/metadata";
 import { getAdminUser } from "@/lib/admin-session";
+import { getContentText } from "@/lib/content-blocks";
 import { listAllPostsForAdmin } from "@/lib/posts";
+import { ContentBlock } from "@/types/content-block";
 
 export const metadata = createMetadata("/admin", {
   title: "Admin Dashboard",
   robots: { index: false, follow: false },
 });
 
-function countWords(paragraphs: string[]): number {
-  return paragraphs.join(" ").split(/\s+/).filter(Boolean).length;
+function countWords(blocks: ContentBlock[]): number {
+  return getContentText(blocks).split(/\s+/).filter(Boolean).length;
 }
 
 export default async function AdminDashboardPage() {
@@ -29,7 +31,7 @@ export default async function AdminDashboardPage() {
     limit: 100,
   });
   const totalWords = posts.reduce(
-    (sum, post) => sum + countWords(post.paragraphs),
+    (sum, post) => sum + countWords(post.content),
     0,
   );
 

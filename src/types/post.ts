@@ -1,3 +1,4 @@
+import { ContentBlock } from "@/types/content-block";
 import { Category, Tag } from "@/types/taxonomy";
 
 export type Post = {
@@ -7,11 +8,7 @@ export type Post = {
   number: string;
   publishedAt: string;
   excerpt: string | null;
-  subheading: string | null;
-  quote: string | null;
-  quoteAuthor: string | null;
-  paragraphs: string[];
-  list: string[];
+  content: ContentBlock[];
   archived: boolean;
   pinned: boolean;
   clapCount: number;

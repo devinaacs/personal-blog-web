@@ -2,15 +2,213 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Save, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Eye,
+  Heading,
+  List as ListIcon,
+  Quote as QuoteIcon,
+  Save,
+  Text,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import { PostArticle } from "@/components/blog/post-article";
 import { slugify } from "@/lib/slugify";
+import { ContentBlock } from "@/types/content-block";
 import { Post } from "@/types/post";
 import { Category, Tag } from "@/types/taxonomy";
 
 function todayInputValue(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function createEmptyBlock(type: ContentBlock["type"]): ContentBlock {
+  switch (type) {
+    case "paragraph":
+      return { type: "paragraph", text: "" };
+    case "heading":
+      return { type: "heading", text: "" };
+    case "quote":
+      return { type: "quote", text: "", author: "" };
+    case "list":
+      return { type: "list", items: [""] };
+  }
+}
+
+function cleanBlocks(blocks: ContentBlock[]): ContentBlock[] {
+  return blocks
+    .map((block): ContentBlock => {
+      if (block.type === "list") {
+        return { ...block, items: block.items.map((item) => item.trim()).filter(Boolean) };
+      }
+      if (block.type === "quote") {
+        const author = block.author?.trim();
+        return { ...block, text: block.text.trim(), author: author || undefined };
+      }
+      return { ...block, text: block.text.trim() };
+    })
+    .filter((block) =>
+      block.type === "list" ? block.items.length > 0 : block.text !== "",
+    );
+}
+
+const BLOCK_LABELS: Record<ContentBlock["type"], string> = {
+  paragraph: "Paragraph",
+  heading: "Heading",
+  quote: "Quote",
+  list: "List",
+};
+
+const BLOCK_ICONS: Record<ContentBlock["type"], typeof Text> = {
+  paragraph: Text,
+  heading: Heading,
+  quote: QuoteIcon,
+  list: ListIcon,
+};
+
+function BlockEditor({
+  block,
+  index,
+  total,
+  onChange,
+  onRemove,
+  onMove,
+}: {
+  block: ContentBlock;
+  index: number;
+  total: number;
+  onChange: (block: ContentBlock) => void;
+  onRemove: () => void;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  const Icon = BLOCK_ICONS[block.type];
+
+  return (
+    <div className="border border-zinc-300 bg-zinc-50 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="flex items-center gap-2 font-mono text-xs tracking-wider text-zinc-500 uppercase">
+          <Icon size={14} />
+          {BLOCK_LABELS[block.type]}
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            className="p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 disabled:opacity-30"
+            disabled={index === 0}
+            onClick={() => onMove(-1)}
+            title="Move up"
+            type="button"
+          >
+            <ArrowUp size={16} />
+          </button>
+          <button
+            className="p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 disabled:opacity-30"
+            disabled={index === total - 1}
+            onClick={() => onMove(1)}
+            title="Move down"
+            type="button"
+          >
+            <ArrowDown size={16} />
+          </button>
+          <button
+            className="p-1.5 text-red-600 transition-colors hover:text-red-800"
+            onClick={onRemove}
+            title="Remove block"
+            type="button"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+
+      {block.type === "paragraph" && (
+        <textarea
+          className="w-full resize-none border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+          onChange={(event) => onChange({ ...block, text: event.target.value })}
+          placeholder="Write your thoughts..."
+          rows={4}
+          value={block.text}
+        />
+      )}
+
+      {block.type === "heading" && (
+        <input
+          className="w-full border border-zinc-300 bg-white px-4 py-3 text-lg font-bold text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+          onChange={(event) => onChange({ ...block, text: event.target.value })}
+          placeholder="A section title..."
+          type="text"
+          value={block.text}
+        />
+      )}
+
+      {block.type === "quote" && (
+        <div className="space-y-3">
+          <textarea
+            className="w-full resize-none border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onChange={(event) => onChange({ ...block, text: event.target.value })}
+            placeholder="A memorable quote..."
+            rows={3}
+            value={block.text}
+          />
+          <input
+            className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onChange={(event) =>
+              onChange({ ...block, author: event.target.value })
+            }
+            placeholder="Author (optional)"
+            type="text"
+            value={block.author ?? ""}
+          />
+        </div>
+      )}
+
+      {block.type === "list" && (
+        <div className="space-y-2">
+          {block.items.map((item, itemIndex) => (
+            <div className="flex items-center gap-2" key={itemIndex}>
+              <input
+                className="w-full border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+                onChange={(event) => {
+                  const items = block.items.map((existing, i) =>
+                    i === itemIndex ? event.target.value : existing,
+                  );
+                  onChange({ ...block, items });
+                }}
+                placeholder="A list item..."
+                type="text"
+                value={item}
+              />
+              <button
+                className="shrink-0 p-2 text-zinc-400 transition-colors hover:text-red-600 disabled:opacity-30"
+                disabled={block.items.length === 1}
+                onClick={() =>
+                  onChange({
+                    ...block,
+                    items: block.items.filter((_, i) => i !== itemIndex),
+                  })
+                }
+                title="Remove item"
+                type="button"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+
+          <button
+            className="border border-zinc-300 px-3 py-1.5 font-mono text-xs text-zinc-700 transition-colors hover:border-zinc-900"
+            onClick={() => onChange({ ...block, items: [...block.items, ""] })}
+            type="button"
+          >
+            + Add item
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function PostForm({
@@ -35,16 +233,10 @@ export function PostForm({
   const [publishedAt, setPublishedAt] = useState(
     initialPost ? initialPost.publishedAt.slice(0, 10) : todayInputValue(),
   );
-  const [paragraphs, setParagraphs] = useState(
-    initialPost ? [...initialPost.paragraphs] : ["", "", "", ""],
-  );
-  const [quote, setQuote] = useState(initialPost?.quote ?? "");
-  const [quoteAuthor, setQuoteAuthor] = useState(
-    initialPost?.quoteAuthor ?? "",
-  );
-  const [subheading, setSubheading] = useState(initialPost?.subheading ?? "");
-  const [listItems, setListItems] = useState(
-    initialPost ? [...initialPost.list] : ["", "", "", ""],
+  const [blocks, setBlocks] = useState<ContentBlock[]>(
+    initialPost
+      ? [...initialPost.content]
+      : [createEmptyBlock("paragraph"), createEmptyBlock("paragraph")],
   );
   const [categoryId, setCategoryId] = useState(
     initialPost?.category?.id ?? "",
@@ -81,12 +273,26 @@ export function PostForm({
     );
   }
 
-  function handleParagraphChange(index: number, value: string) {
-    setParagraphs((prev) => prev.map((p, i) => (i === index ? value : p)));
+  function addBlock(type: ContentBlock["type"]) {
+    setBlocks((prev) => [...prev, createEmptyBlock(type)]);
   }
 
-  function handleListItemChange(index: number, value: string) {
-    setListItems((prev) => prev.map((item, i) => (i === index ? value : item)));
+  function updateBlockAt(index: number, block: ContentBlock) {
+    setBlocks((prev) => prev.map((existing, i) => (i === index ? block : existing)));
+  }
+
+  function removeBlockAt(index: number) {
+    setBlocks((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function moveBlockAt(index: number, direction: -1 | 1) {
+    setBlocks((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   function handleClose() {
@@ -95,13 +301,8 @@ export function PostForm({
         slug !== (initialPost?.slug ?? "") ||
         excerpt !== (initialPost?.excerpt ?? "") ||
         publishedAt !== (initialPost?.publishedAt.slice(0, 10) ?? "") ||
-        subheading !== (initialPost?.subheading ?? "") ||
-        quote !== (initialPost?.quote ?? "") ||
-        quoteAuthor !== (initialPost?.quoteAuthor ?? "") ||
         categoryId !== (initialPost?.category?.id ?? "") ||
-        JSON.stringify(paragraphs) !==
-          JSON.stringify(initialPost?.paragraphs ?? []) ||
-        JSON.stringify(listItems) !== JSON.stringify(initialPost?.list ?? []) ||
+        JSON.stringify(blocks) !== JSON.stringify(initialPost?.content ?? []) ||
         JSON.stringify([...selectedTagIds].sort()) !==
           JSON.stringify(
             (initialPost?.tags.map((tag) => tag.id) ?? []).sort(),
@@ -110,10 +311,11 @@ export function PostForm({
           title.trim() ||
           slug.trim() ||
           excerpt.trim() ||
-          paragraphs.some((p) => p.trim()) ||
-          subheading.trim() ||
-          quote.trim() ||
-          listItems.some((item) => item.trim()) ||
+          blocks.some((block) =>
+            block.type === "list"
+              ? block.items.some((item) => item.trim())
+              : block.text.trim(),
+          ) ||
           categoryId ||
           selectedTagIds.length > 0,
         );
@@ -128,10 +330,10 @@ export function PostForm({
   async function handleSave() {
     setError(null);
 
-    const cleanParagraphs = paragraphs.filter((p) => p.trim() !== "");
-    const cleanList = listItems.filter((item) => item.trim() !== "");
+    const cleanedBlocks = cleanBlocks(blocks);
+    const hasParagraph = cleanedBlocks.some((block) => block.type === "paragraph");
 
-    if (!title.trim() || cleanParagraphs.length === 0) {
+    if (!title.trim() || !hasParagraph) {
       setError("Title and at least one paragraph are required.");
       return;
     }
@@ -157,11 +359,7 @@ export function PostForm({
           number,
           publishedAt: new Date(publishedAt).toISOString(),
           excerpt: excerpt.trim() || undefined,
-          paragraphs: cleanParagraphs,
-          subheading: subheading.trim() || undefined,
-          quote: quote.trim() || undefined,
-          quoteAuthor: quoteAuthor.trim() || undefined,
-          list: cleanList.length > 0 ? cleanList : undefined,
+          content: cleanedBlocks,
           categoryId,
           tagIds: selectedTagIds,
         }),
@@ -190,11 +388,7 @@ export function PostForm({
     number: number || "000",
     publishedAt: new Date(publishedAt).toISOString(),
     excerpt: excerpt || null,
-    subheading: subheading || null,
-    quote: quote || null,
-    quoteAuthor: quoteAuthor || null,
-    paragraphs: paragraphs.filter((p) => p.trim() !== ""),
-    list: listItems.filter((item) => item.trim() !== ""),
+    content: cleanBlocks(blocks),
     archived: false,
     pinned: initialPost?.pinned ?? false,
     clapCount: initialPost?.clapCount ?? 0,
@@ -418,119 +612,55 @@ export function PostForm({
             <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">Content</h2>
-              </div>
-
-              <div className="space-y-4">
-                {paragraphs.map((paragraph, index) => (
-                  <div key={index}>
-                    <label className="mb-2 block font-mono text-xs text-zinc-500">
-                      Paragraph {index + 1}{" "}
-                      {index === 0 && "(First letter will be a drop cap)"}
-                    </label>
-                    <textarea
-                      className="w-full resize-none border border-zinc-300 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none"
-                      onChange={(event) =>
-                        handleParagraphChange(index, event.target.value)
-                      }
-                      placeholder="Write your thoughts..."
-                      rows={4}
-                      value={paragraph}
-                    />
-                  </div>
-                ))}
-
-                <button
-                  className="border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
-                  onClick={() => setParagraphs((prev) => [...prev, ""])}
-                  type="button"
-                >
-                  + Add Paragraph
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-6 bg-white p-4 sm:p-8">
-              <div className="border-l-4 border-zinc-900 pl-4">
-                <h2 className="text-2xl font-bold text-zinc-900">
-                  Optional Elements
-                </h2>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="mb-2 block font-mono text-sm text-zinc-700">
-                    Subheading
-                  </label>
-                  <input
-                    className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
-                    onChange={(event) => setSubheading(event.target.value)}
-                    placeholder="A section title..."
-                    type="text"
-                    value={subheading}
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block font-mono text-sm text-zinc-700">
-                    Pull Quote
-                  </label>
-                  <textarea
-                    className="w-full resize-none border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
-                    onChange={(event) => setQuote(event.target.value)}
-                    placeholder="A memorable quote from your post..."
-                    rows={3}
-                    value={quote}
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block font-mono text-sm text-zinc-700">
-                    Quote Author (optional)
-                  </label>
-                  <input
-                    className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
-                    onChange={(event) => setQuoteAuthor(event.target.value)}
-                    placeholder="Author name"
-                    type="text"
-                    value={quoteAuthor}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6 bg-white p-4 sm:p-8">
-              <div className="border-l-4 border-zinc-900 pl-4">
-                <h2 className="text-2xl font-bold text-zinc-900">List Items</h2>
                 <p className="mt-1 text-sm text-zinc-600">
-                  Numbered takeaways or key points
+                  Build the article from paragraph, heading, quote, and list
+                  blocks — reorder or remove them as needed
                 </p>
               </div>
 
               <div className="space-y-4">
-                {listItems.map((item, index) => (
-                  <div key={index}>
-                    <label className="mb-2 block font-mono text-xs text-zinc-500">
-                      Item {index + 1}
-                    </label>
-                    <input
-                      className="w-full border border-zinc-300 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none"
-                      onChange={(event) =>
-                        handleListItemChange(index, event.target.value)
-                      }
-                      placeholder="A key takeaway..."
-                      type="text"
-                      value={item}
-                    />
-                  </div>
+                {blocks.map((block, index) => (
+                  <BlockEditor
+                    block={block}
+                    index={index}
+                    key={index}
+                    onChange={(next) => updateBlockAt(index, next)}
+                    onMove={(direction) => moveBlockAt(index, direction)}
+                    onRemove={() => removeBlockAt(index)}
+                    total={blocks.length}
+                  />
                 ))}
 
-                <button
-                  className="border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
-                  onClick={() => setListItems((prev) => [...prev, ""])}
-                  type="button"
-                >
-                  + Add List Item
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("paragraph")}
+                    type="button"
+                  >
+                    <Text size={16} />+ Paragraph
+                  </button>
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("heading")}
+                    type="button"
+                  >
+                    <Heading size={16} />+ Heading
+                  </button>
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("quote")}
+                    type="button"
+                  >
+                    <QuoteIcon size={16} />+ Quote
+                  </button>
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("list")}
+                    type="button"
+                  >
+                    <ListIcon size={16} />+ List
+                  </button>
+                </div>
               </div>
             </div>
           </div>
