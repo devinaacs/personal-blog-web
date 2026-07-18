@@ -133,8 +133,9 @@ export function PostArticle({
               I&apos;m completely wrong, I&apos;d love to hear about it.
             </p>
 
-            <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-center gap-8">
               <ClapButton initialCount={post.clapCount} slug={post.slug} />
+              <div className="h-16 w-px bg-zinc-200" />
               <ShareButtons
                 slug={post.slug}
                 title={post.title}
