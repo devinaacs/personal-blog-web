@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { format } from "date-fns";
 
 import { PostDetail } from "@/components/blog/post-detail";
 import { createMetadata, metadata as baseMetadata } from "@/config/metadata";
@@ -9,6 +10,7 @@ import {
   getSurroundingPosts,
   listPublishedPosts,
 } from "@/lib/posts";
+import { estimateReadingMinutes } from "@/lib/reading-time";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const { items } = await listPublishedPosts({ limit: 100 });
@@ -32,7 +34,16 @@ export async function generateMetadata({
   const ogParams = new URLSearchParams({
     title: post.title,
     subheading: description,
+    number: post.number,
+    date: format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase(),
+    readingMinutes: String(estimateReadingMinutes(post.content)),
   });
+  if (post.category) {
+    ogParams.set("category", post.category.name);
+  }
+  if (post.tags.length > 0) {
+    ogParams.set("tags", post.tags.map((tag) => tag.name).join(","));
+  }
   const ogImage = `/og?${ogParams.toString()}`;
 
   return createMetadata(`/blog/${post.slug}`, {
