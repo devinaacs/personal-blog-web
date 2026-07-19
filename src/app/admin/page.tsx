@@ -7,8 +7,8 @@ import { AdminPostList } from "@/components/admin/admin-post-list";
 import { WoodTexture } from "@/components/shared/wood-texture";
 import { createMetadata } from "@/config/metadata";
 import { getAdminUser } from "@/lib/admin-session";
+import { listAllPostsForAdmin } from "@/lib/admin-posts";
 import { getContentText } from "@/lib/content-blocks";
-import { listAllPostsForAdmin } from "@/lib/posts";
 import { ContentBlock } from "@/types/content-block";
 
 export const metadata = createMetadata("/admin", {

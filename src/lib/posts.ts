@@ -1,4 +1,3 @@
-import { adminApiFetch } from "@/lib/admin-api";
 import { apiFetch, apiFetchOrNull } from "@/lib/api";
 import { getFirstParagraphText } from "@/lib/content-blocks";
 import { PaginatedResult, Post } from "@/types/post";
@@ -27,19 +26,6 @@ export async function listPublishedPosts(
   if (params.tag) query.set("tag", params.tag);
 
   return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`);
-}
-
-export async function listAllPostsForAdmin(
-  params: { page?: number; limit?: number } = {},
-): Promise<PaginatedResult<Post>> {
-  const query = new URLSearchParams({
-    page: String(params.page ?? 1),
-    limit: String(params.limit ?? 20),
-  });
-
-  return adminApiFetch<PaginatedResult<Post>>(
-    `/posts/admin?${query.toString()}`,
-  );
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {

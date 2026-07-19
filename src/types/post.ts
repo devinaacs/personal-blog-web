@@ -8,6 +8,7 @@ export type Post = {
   number: string;
   publishedAt: string;
   excerpt: string | null;
+  subtitle: string | null;
   content: ContentBlock[];
   archived: boolean;
   pinned: boolean;

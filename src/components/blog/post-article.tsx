@@ -95,9 +95,15 @@ export function PostArticle({
           </span>
         </div>
 
-        <h1 className="mb-8 text-5xl leading-none font-bold text-white md:text-7xl">
+        <h1 className="mb-6 text-5xl leading-none font-bold text-white md:text-7xl">
           {post.title}
         </h1>
+
+        {post.subtitle && (
+          <p className="mb-8 max-w-2xl text-xl leading-relaxed text-zinc-400">
+            {post.subtitle}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-6 text-zinc-400">
           <div className="flex items-center gap-3">

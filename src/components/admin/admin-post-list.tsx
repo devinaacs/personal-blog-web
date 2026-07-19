@@ -29,6 +29,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
   const [filter, setFilter] = useState<Filter>("active");
 
   const archivedCount = posts.filter((post) => post.archived).length;
+  const activeCount = posts.filter((post) => !post.archived).length;
   const pinnedCount = posts.filter((post) => post.pinned).length;
   const visiblePosts = useMemo(() => {
     if (filter === "all") return posts;
@@ -133,10 +134,13 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
             onClick={() => setFilter(option)}
             type="button"
           >
-            {option}
-            {option === "archived" && archivedCount > 0
-              ? ` (${archivedCount})`
-              : ""}
+            {option} (
+            {option === "active"
+              ? activeCount
+              : option === "archived"
+                ? archivedCount
+                : posts.length}
+            )
           </button>
         ))}
       </div>

@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { PostForm } from "@/components/admin/post-form";
 import { createMetadata } from "@/config/metadata";
 import { getAdminUser } from "@/lib/admin-session";
+import { listAllPostsForAdmin } from "@/lib/admin-posts";
 import { listCategories } from "@/lib/categories";
-import { listAllPostsForAdmin } from "@/lib/posts";
 import { listTags } from "@/lib/tags";
 
 export const metadata = createMetadata("/admin/posts/new", {

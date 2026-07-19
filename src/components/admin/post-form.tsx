@@ -230,6 +230,7 @@ export function PostForm({
   const [slug, setSlug] = useState(initialPost?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEditMode);
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
+  const [subtitle, setSubtitle] = useState(initialPost?.subtitle ?? "");
   const [publishedAt, setPublishedAt] = useState(
     initialPost ? initialPost.publishedAt.slice(0, 10) : todayInputValue(),
   );
@@ -300,6 +301,7 @@ export function PostForm({
       ? title !== (initialPost?.title ?? "") ||
         slug !== (initialPost?.slug ?? "") ||
         excerpt !== (initialPost?.excerpt ?? "") ||
+        subtitle !== (initialPost?.subtitle ?? "") ||
         publishedAt !== (initialPost?.publishedAt.slice(0, 10) ?? "") ||
         categoryId !== (initialPost?.category?.id ?? "") ||
         JSON.stringify(blocks) !== JSON.stringify(initialPost?.content ?? []) ||
@@ -311,6 +313,7 @@ export function PostForm({
           title.trim() ||
           slug.trim() ||
           excerpt.trim() ||
+          subtitle.trim() ||
           blocks.some((block) =>
             block.type === "list"
               ? block.items.some((item) => item.trim())
@@ -359,6 +362,7 @@ export function PostForm({
           number,
           publishedAt: new Date(publishedAt).toISOString(),
           excerpt: excerpt.trim() || undefined,
+          subtitle: subtitle.trim() || undefined,
           content: cleanedBlocks,
           categoryId,
           tagIds: selectedTagIds,
@@ -388,6 +392,7 @@ export function PostForm({
     number: number || "000",
     publishedAt: new Date(publishedAt).toISOString(),
     excerpt: excerpt || null,
+    subtitle: subtitle || null,
     content: cleanBlocks(blocks),
     archived: false,
     pinned: initialPost?.pinned ?? false,
@@ -474,6 +479,19 @@ export function PostForm({
                     placeholder="the art of overthinking..."
                     type="text"
                     value={title}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block font-mono text-sm text-zinc-700">
+                    Subtitle
+                  </label>
+                  <input
+                    className="w-full border-2 border-zinc-900 bg-zinc-50 px-4 py-3 text-zinc-900 transition-colors focus:bg-white focus:outline-none"
+                    onChange={(event) => setSubtitle(event.target.value)}
+                    placeholder="A one-line tagline shown under the title..."
+                    type="text"
+                    value={subtitle}
                   />
                 </div>
 
