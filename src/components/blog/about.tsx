@@ -76,7 +76,7 @@ export async function About({
               <h3 className="mb-4 font-mono text-sm tracking-wider text-zinc-900 uppercase">
                 Currently Using →
               </h3>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-zinc-600">
+              <div className="grid grid-cols-1 gap-y-3 text-zinc-600 sm:grid-cols-2 sm:gap-x-8">
                 {settings.currentlyUsing.map((item) => (
                   <div className="flex items-center gap-2" key={item}>
                     <div className="h-2 w-2 bg-zinc-900" />

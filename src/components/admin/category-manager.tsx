@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 
 import { Category } from "@/types/taxonomy";
 
@@ -77,6 +78,14 @@ export function CategoryManager({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <Link
+        className="mb-4 inline-flex items-center gap-2 font-mono text-sm text-zinc-500 transition-colors hover:text-zinc-900"
+        href="/admin"
+      >
+        <ArrowLeft size={16} />
+        Back to dashboard
+      </Link>
+
       <h1 className="mb-1 text-2xl font-bold text-zinc-900 sm:text-3xl">
         Categories
       </h1>

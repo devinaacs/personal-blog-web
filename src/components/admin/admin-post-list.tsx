@@ -122,7 +122,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         {(["active", "archived", "all"] as const).map((option) => (
           <button
             className={`px-3 py-1.5 font-mono text-xs uppercase transition-colors ${
@@ -159,7 +159,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
             }`}
             key={post.id}
           >
-            <div className="flex items-start justify-between gap-3 sm:gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div className="grow">
                 <div className="mb-2 flex items-center gap-3">
                   <span className="bg-zinc-900 px-2 py-1 font-mono text-xs text-white">
@@ -213,7 +213,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                 )}
               </div>
 
-              <div className="flex shrink-0 items-center gap-2 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+              <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:flex-nowrap sm:transition-opacity md:opacity-0 md:group-hover:opacity-100">
                 <Link
                   className="border-2 border-zinc-900 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
                   href={`/admin/posts/${post.id}/engagement`}

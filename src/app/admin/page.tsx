@@ -50,9 +50,9 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Link
-              className="flex flex-1 items-center justify-center gap-2 bg-white px-4 py-3 font-bold text-zinc-900 transition-colors hover:bg-zinc-200 sm:flex-none sm:px-6"
+              className="flex items-center justify-center gap-2 bg-white px-4 py-3 font-bold text-zinc-900 transition-colors hover:bg-zinc-200"
               href="/admin/posts/new"
             >
               <Plus size={20} />

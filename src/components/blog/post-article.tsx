@@ -20,7 +20,7 @@ function ContentBlockView({
     case "paragraph":
       return isFirstParagraph ? (
         <p className="text-xl leading-relaxed text-zinc-700">
-          <span className="float-left mt-2 mr-3 text-7xl leading-none font-bold text-zinc-900">
+          <span className="float-left mt-1 mr-3 text-5xl leading-none font-bold text-zinc-900 sm:mt-2 sm:text-7xl">
             {block.text.charAt(0)}
           </span>
           {block.text.slice(1)}

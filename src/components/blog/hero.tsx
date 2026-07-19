@@ -17,17 +17,17 @@ export function Hero() {
             </span>
           </div>
 
-          <div className="mb-12 space-y-4">
-            <h2 className="text-5xl leading-none font-bold text-zinc-900 md:text-7xl">
+          <div className="mb-12 space-y-3 sm:space-y-4">
+            <h2 className="text-4xl leading-none font-bold text-zinc-900 sm:text-5xl md:text-7xl">
               thoughts,
             </h2>
-            <h2 className="text-5xl leading-none font-bold text-zinc-900 md:pl-20 md:text-7xl">
+            <h2 className="text-4xl leading-none font-bold text-zinc-900 sm:text-5xl md:pl-20 md:text-7xl">
               code,
             </h2>
-            <h2 className="text-5xl leading-none font-bold text-zinc-400 md:pl-10 md:text-7xl">
+            <h2 className="text-4xl leading-none font-bold text-zinc-400 sm:text-5xl md:pl-10 md:text-7xl">
               & everything
             </h2>
-            <h2 className="text-5xl leading-none font-bold text-zinc-400 md:pl-32 md:text-7xl">
+            <h2 className="text-4xl leading-none font-bold text-zinc-400 sm:text-5xl md:pl-32 md:text-7xl">
               in between
             </h2>
           </div>
