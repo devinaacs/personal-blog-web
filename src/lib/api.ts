@@ -10,8 +10,8 @@ export async function apiFetch<T>(
   init?: RequestInit,
 ): Promise<T> {
   const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+    next: { revalidate: 60 },
     ...init,
-    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -28,8 +28,8 @@ export async function apiFetchOrNull<T>(
   init?: RequestInit,
 ): Promise<T | null> {
   const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+    next: { revalidate: 60 },
     ...init,
-    cache: "no-store",
   });
 
   if (response.status === 404) {

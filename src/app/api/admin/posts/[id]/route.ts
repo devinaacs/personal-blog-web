@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminApiFetch, AdminApiError } from "@/lib/admin-api";
@@ -16,6 +17,9 @@ export async function PATCH(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+
+    revalidateTag("posts", "max");
+    revalidateTag(`post:${post.slug}`, "max");
 
     return NextResponse.json({ success: true, data: post });
   } catch (error) {
@@ -38,6 +42,8 @@ export async function DELETE(
 
   try {
     await adminApiFetch<void>(`/posts/${id}`, { method: "DELETE" });
+
+    revalidateTag("posts", "max");
 
     return NextResponse.json({ success: true });
   } catch (error) {

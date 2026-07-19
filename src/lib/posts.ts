@@ -25,11 +25,15 @@ export async function listPublishedPosts(
   if (params.category) query.set("category", params.category);
   if (params.tag) query.set("tag", params.tag);
 
-  return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`);
+  return apiFetch<PaginatedResult<Post>>(`/posts?${query.toString()}`, {
+    next: { revalidate: 60, tags: ["posts"] },
+  });
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  return apiFetchOrNull<Post>(`/posts/${slug}`);
+  return apiFetchOrNull<Post>(`/posts/${slug}`, {
+    next: { revalidate: 60, tags: ["posts", `post:${slug}`] },
+  });
 }
 
 export async function getSurroundingPosts(
