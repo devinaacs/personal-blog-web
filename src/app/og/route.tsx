@@ -232,8 +232,16 @@ export async function GET(request: Request) {
               </div>
 
               {tags.length > 0 && (
-                <div style={{ display: "flex", gap: 16, marginTop: -4 }}>
-                  {tags.slice(0, 4).map((tag) => (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 16,
+                    marginTop: -4,
+                    rowGap: 8,
+                  }}
+                >
+                  {tags.slice(0, 6).map((tag) => (
                     <span
                       key={tag}
                       style={{

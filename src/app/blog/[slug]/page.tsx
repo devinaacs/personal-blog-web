@@ -33,7 +33,7 @@ export async function generateMetadata({
   const description = getPostExcerpt(post).slice(0, 160);
   const ogParams = new URLSearchParams({
     title: post.title,
-    subheading: description,
+    subheading: post.subtitle ?? description,
     number: post.number,
     date: format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase(),
     readingMinutes: String(estimateReadingMinutes(post.content)),
