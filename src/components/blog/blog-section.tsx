@@ -1,4 +1,4 @@
-import { BlogCard } from "@/components/blog/blog-card";
+import { BlogFilterGrid } from "@/components/blog/blog-filter-grid";
 import { WoodTexture } from "@/components/shared/wood-texture";
 import { Post } from "@/types/post";
 
@@ -33,18 +33,7 @@ export function BlogSection({
           </p>
         </div>
 
-        {posts.length === 0 ? (
-          <div className="border-2 border-zinc-200 bg-white py-16 text-center">
-            <div className="mb-4 text-6xl">📝</div>
-            <p className="text-xl text-zinc-600">{emptyMessage}</p>
-          </div>
-        ) : (
-          <div className="grid auto-rows-fr gap-6 md:grid-cols-3">
-            {posts.map((post, index) => (
-              <BlogCard isLarge={index % 3 === 0} key={post.id} post={post} />
-            ))}
-          </div>
-        )}
+        <BlogFilterGrid emptyMessage={emptyMessage} posts={posts} />
       </div>
     </section>
   );

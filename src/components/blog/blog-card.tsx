@@ -56,6 +56,19 @@ export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
           {excerpt}
         </p>
 
+        {post.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <span
+                className="border border-dashed border-zinc-300 px-2 py-0.5 font-mono text-xs text-zinc-500"
+                key={tag.id}
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="mt-6 flex items-center gap-2 text-zinc-900 transition-all group-hover:gap-4">
           <span className="font-mono text-sm">read</span>
           <div className="h-px grow bg-zinc-900 opacity-0 transition-opacity group-hover:opacity-100" />

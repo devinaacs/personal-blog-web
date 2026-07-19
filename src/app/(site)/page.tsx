@@ -7,7 +7,9 @@ import { listPublishedPosts } from "@/lib/posts";
 export const metadata = createMetadata("/");
 
 export default async function Home() {
-  const { items: posts, pagination } = await listPublishedPosts();
+  const { items: posts, pagination } = await listPublishedPosts({
+    limit: 100,
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50">
