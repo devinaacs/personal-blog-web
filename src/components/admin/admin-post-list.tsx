@@ -45,9 +45,10 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
     setDeletingId(post.id);
 
     try {
-      const response = await fetch(`/api/admin/posts/${post.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/admin/posts/${post.id}?slug=${encodeURIComponent(post.slug)}`,
+        { method: "DELETE" },
+      );
 
       if (!response.ok) {
         const body = (await response.json()) as { message?: string };

@@ -35,15 +35,19 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id } = await params;
+  const slug = request.nextUrl.searchParams.get("slug");
 
   try {
     await adminApiFetch<void>(`/posts/${id}`, { method: "DELETE" });
 
     revalidateTag("posts", "max");
+    if (slug) {
+      revalidateTag(`post:${slug}`, "max");
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
