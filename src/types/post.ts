@@ -14,6 +14,7 @@ export type Post = {
   pinned: boolean;
   clapCount: number;
   shareCount: number;
+  viewCount: number;
   category: Category | null;
   tags: Tag[];
   createdAt: string;

@@ -398,6 +398,7 @@ export function PostForm({
     pinned: initialPost?.pinned ?? false,
     clapCount: initialPost?.clapCount ?? 0,
     shareCount: initialPost?.shareCount ?? 0,
+    viewCount: initialPost?.viewCount ?? 0,
     category: categories.find((c) => c.id === categoryId) ?? null,
     tags: tags.filter((tag) => selectedTagIds.includes(tag.id)),
     createdAt: new Date().toISOString(),

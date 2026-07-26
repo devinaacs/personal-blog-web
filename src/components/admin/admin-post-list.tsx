@@ -192,6 +192,7 @@ export function AdminPostList({ posts }: { posts: Post[] }) {
                 <div className="mt-2 flex items-center gap-4 font-mono text-xs text-zinc-500">
                   <span>👏 {post.clapCount.toLocaleString()}</span>
                   <span>🔗 {post.shareCount.toLocaleString()}</span>
+                  <span>👁 {post.viewCount.toLocaleString()}</span>
                 </div>
 
                 {(post.category ?? post.tags.length > 0) && (

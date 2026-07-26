@@ -18,6 +18,7 @@ export type Sharer = {
 export type PostEngagement = {
   clapCount: number;
   shareCount: number;
+  viewCount: number;
   clappers: Clapper[];
   sharers: Sharer[];
 };

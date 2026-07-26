@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 import { ClapButton } from "@/components/blog/clap-button";
 import { ShareButtons } from "@/components/blog/share-buttons";
+import { ViewTracker } from "@/components/blog/view-tracker";
 import { env } from "@/lib/env";
 import { estimateReadingMinutes } from "@/lib/reading-time";
 import { ContentBlock } from "@/types/content-block";
@@ -88,6 +89,8 @@ export function PostArticle({
 
   return (
     <article className="relative mx-auto max-w-4xl px-6 py-20">
+      <ViewTracker slug={post.slug} />
+
       <header className="mb-16">
         <div className="mb-6 inline-block bg-white px-4 py-2">
           <span className="font-mono text-sm text-zinc-900">
@@ -113,6 +116,10 @@ export function PostArticle({
             </time>
           </div>
           <span className="font-mono text-sm">{readingMinutes} min read</span>
+          <span className="flex items-center gap-1.5 font-mono text-sm">
+            <Eye size={14} />
+            {post.viewCount.toLocaleString()} reads
+          </span>
           {post.category && (
             <Link
               className="border border-zinc-600 px-3 py-1 font-mono text-sm text-zinc-300 transition-colors hover:border-white hover:text-white"

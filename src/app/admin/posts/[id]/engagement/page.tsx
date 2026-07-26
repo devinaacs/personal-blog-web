@@ -60,13 +60,20 @@ export default async function PostEngagementPage({
             {post.title}
           </h1>
           <p className="font-mono text-sm text-zinc-400">
-            {"// clap & share activity"}
+            {"// views, claps & share activity"}
           </p>
         </div>
       </header>
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <div className="mb-8 grid gap-6 sm:grid-cols-2">
+        <div className="mb-8 grid gap-6 sm:grid-cols-3">
+          <div className="border-l-4 border-zinc-900 bg-white p-6">
+            <div className="mb-2 text-4xl font-bold text-zinc-900">
+              {engagement.viewCount.toLocaleString()}
+            </div>
+            <div className="font-mono text-sm text-zinc-600">Total Reads</div>
+          </div>
+
           <div className="border-l-4 border-zinc-900 bg-white p-6">
             <div className="mb-2 text-4xl font-bold text-zinc-900">
               {engagement.clapCount.toLocaleString()}
