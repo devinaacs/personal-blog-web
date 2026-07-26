@@ -19,4 +19,23 @@ export type QuoteBlock = {
   author?: string;
 };
 
-export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | QuoteBlock;
+export type ImageBlock = {
+  type: "image";
+  url: string;
+  alt: string;
+  caption?: string;
+};
+
+export type TableBlock = {
+  type: "table";
+  headers: string[];
+  rows: string[][];
+};
+
+export type ContentBlock =
+  | ParagraphBlock
+  | HeadingBlock
+  | ListBlock
+  | QuoteBlock
+  | ImageBlock
+  | TableBlock;

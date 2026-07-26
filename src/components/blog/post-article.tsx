@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 import { ClapButton } from "@/components/blog/clap-button";
+import { InlineText } from "@/components/blog/inline-text";
 import { ShareButtons } from "@/components/blog/share-buttons";
 import { ViewTracker } from "@/components/blog/view-tracker";
 import { env } from "@/lib/env";
@@ -24,16 +25,20 @@ function ContentBlockView({
           <span className="float-left mt-1 mr-3 text-5xl leading-none font-bold text-zinc-900 sm:mt-2 sm:text-7xl">
             {block.text.charAt(0)}
           </span>
-          {block.text.slice(1)}
+          <InlineText text={block.text.slice(1)} />
         </p>
       ) : (
-        <p className="text-lg leading-relaxed text-zinc-700">{block.text}</p>
+        <p className="text-lg leading-relaxed text-zinc-700">
+          <InlineText text={block.text} />
+        </p>
       );
 
     case "heading":
       return (
         <div className="my-12 border-l-4 border-zinc-900 pl-8">
-          <h2 className="text-3xl font-bold text-zinc-900">{block.text}</h2>
+          <h2 className="text-3xl font-bold text-zinc-900">
+            <InlineText text={block.text} />
+          </h2>
         </div>
       );
 
@@ -43,7 +48,7 @@ function ContentBlockView({
           <div className="absolute top-0 -left-4 h-full w-1 bg-zinc-900" />
           <div className="bg-zinc-50 p-8 md:p-12">
             <p className="mb-4 text-2xl leading-relaxed font-bold text-zinc-900 md:text-3xl">
-              &ldquo;{block.text}&rdquo;
+              &ldquo;<InlineText text={block.text} />&rdquo;
             </p>
             {block.author && (
               <cite className="font-mono text-sm text-zinc-600 not-italic">
@@ -63,10 +68,64 @@ function ContentBlockView({
                 {itemIndex + 1}
               </div>
               <p className="pt-1 text-lg leading-relaxed text-zinc-700">
-                {item}
+                <InlineText text={item} />
               </p>
             </div>
           ))}
+        </div>
+      );
+
+    case "image":
+      return (
+        <figure className="my-12">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded images have no known dimensions ahead of time */}
+          <img
+            alt={block.alt}
+            className="w-full rounded-lg border border-zinc-200"
+            src={block.url}
+          />
+          {block.caption && (
+            <figcaption className="mt-3 text-center font-mono text-sm text-zinc-500">
+              <InlineText text={block.caption} />
+            </figcaption>
+          )}
+        </figure>
+      );
+
+    case "table":
+      return (
+        <div className="my-12 overflow-x-auto border border-zinc-200">
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="bg-zinc-900">
+                {block.headers.map((header, headerIndex) => (
+                  <th
+                    className="px-4 py-3 font-mono text-xs tracking-wider text-white uppercase"
+                    key={headerIndex}
+                  >
+                    <InlineText text={header} />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, rowIndex) => (
+                <tr
+                  className="border-t border-zinc-200 odd:bg-white even:bg-zinc-50"
+                  key={rowIndex}
+                >
+                  {row.map((cell, cellIndex) => (
+                    <td
+                      className="px-4 py-3 text-lg text-zinc-700"
+                      key={cellIndex}
+                    >
+                      <InlineText text={cell} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
   }

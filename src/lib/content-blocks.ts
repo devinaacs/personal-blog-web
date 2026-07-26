@@ -8,6 +8,12 @@ export function getBlockText(block: ContentBlock): string {
       return block.text;
     case "list":
       return block.items.join(" ");
+    case "image":
+      return block.caption ?? block.alt;
+    case "table":
+      return [block.headers.join(" "), ...block.rows.map((row) => row.join(" "))].join(
+        " ",
+      );
   }
 }
 

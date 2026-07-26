@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { ClipboardEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown,
   ArrowUp,
   Eye,
   Heading,
+  Image as ImageIcon,
   List as ListIcon,
+  Loader2,
   Quote as QuoteIcon,
   Save,
+  Table as TableIcon,
   Text,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 
@@ -35,6 +39,10 @@ function createEmptyBlock(type: ContentBlock["type"]): ContentBlock {
       return { type: "quote", text: "", author: "" };
     case "list":
       return { type: "list", items: [""] };
+    case "image":
+      return { type: "image", url: "", alt: "" };
+    case "table":
+      return { type: "table", headers: ["", ""], rows: [["", ""]] };
   }
 }
 
@@ -48,11 +56,34 @@ function cleanBlocks(blocks: ContentBlock[]): ContentBlock[] {
         const author = block.author?.trim();
         return { ...block, text: block.text.trim(), author: author || undefined };
       }
+      if (block.type === "image") {
+        const caption = block.caption?.trim();
+        return {
+          ...block,
+          url: block.url.trim(),
+          alt: block.alt.trim(),
+          caption: caption || undefined,
+        };
+      }
+      if (block.type === "table") {
+        return {
+          ...block,
+          headers: block.headers.map((header) => header.trim()),
+          rows: block.rows.map((row) => row.map((cell) => cell.trim())),
+        };
+      }
       return { ...block, text: block.text.trim() };
     })
-    .filter((block) =>
-      block.type === "list" ? block.items.length > 0 : block.text !== "",
-    );
+    .filter((block) => {
+      if (block.type === "list") return block.items.length > 0;
+      if (block.type === "image") return block.url !== "";
+      if (block.type === "table") {
+        return (
+          block.headers.some(Boolean) && block.rows.some((row) => row.some(Boolean))
+        );
+      }
+      return block.text !== "";
+    });
 }
 
 const BLOCK_LABELS: Record<ContentBlock["type"], string> = {
@@ -60,6 +91,8 @@ const BLOCK_LABELS: Record<ContentBlock["type"], string> = {
   heading: "Heading",
   quote: "Quote",
   list: "List",
+  image: "Image",
+  table: "Table",
 };
 
 const BLOCK_ICONS: Record<ContentBlock["type"], typeof Text> = {
@@ -67,7 +100,28 @@ const BLOCK_ICONS: Record<ContentBlock["type"], typeof Text> = {
   heading: Heading,
   quote: QuoteIcon,
   list: ListIcon,
+  image: ImageIcon,
+  table: TableIcon,
 };
+
+async function uploadImage(file: File): Promise<string> {
+  const response = await fetch("/api/admin/upload", {
+    method: "POST",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+  const body = (await response.json()) as {
+    success: boolean;
+    data?: { url: string };
+    message?: string;
+  };
+
+  if (!body.success || !body.data) {
+    throw new Error(body.message ?? "Failed to upload image");
+  }
+
+  return body.data.url;
+}
 
 function BlockEditor({
   block,
@@ -85,6 +139,38 @@ function BlockEditor({
   onMove: (direction: -1 | 1) => void;
 }) {
   const Icon = BLOCK_ICONS[block.type];
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File | null | undefined) {
+    if (!file || block.type !== "image") return;
+
+    setUploadError(null);
+    setIsUploading(true);
+
+    try {
+      const url = await uploadImage(file);
+      onChange({ ...block, url });
+    } catch (error) {
+      setUploadError(
+        error instanceof Error ? error.message : "Failed to upload image",
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    const item = Array.from(event.clipboardData.items).find((entry) =>
+      entry.type.startsWith("image/"),
+    );
+
+    if (!item) return;
+
+    event.preventDefault();
+    void handleFile(item.getAsFile());
+  }
 
   return (
     <div className="border border-zinc-300 bg-zinc-50 p-4">
@@ -207,6 +293,190 @@ function BlockEditor({
           </button>
         </div>
       )}
+
+      {block.type === "image" && (
+        <div className="space-y-3" onPaste={handlePaste}>
+          <input
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={(event) => void handleFile(event.target.files?.[0])}
+            ref={fileInputRef}
+            type="file"
+          />
+
+          {block.url ? (
+            <div className="relative border border-zinc-300 bg-white p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of an arbitrary uploaded/pasted image */}
+              <img
+                alt={block.alt || "Preview"}
+                className="max-h-64 w-full rounded object-contain"
+                src={block.url}
+              />
+            </div>
+          ) : (
+            <button
+              className="flex w-full flex-col items-center gap-2 border-2 border-dashed border-zinc-300 bg-white px-4 py-8 text-zinc-500 transition-colors hover:border-zinc-900 hover:text-zinc-900 disabled:opacity-60"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+              type="button"
+            >
+              {isUploading ? (
+                <Loader2 className="animate-spin" size={24} />
+              ) : (
+                <Upload size={24} />
+              )}
+              <span className="font-mono text-sm">
+                {isUploading
+                  ? "Uploading..."
+                  : "Paste an image, or click to choose a file"}
+              </span>
+            </button>
+          )}
+
+          {uploadError && (
+            <p className="font-mono text-xs text-red-600">{uploadError}</p>
+          )}
+
+          <input
+            className="w-full border border-zinc-300 bg-white px-4 py-2.5 font-mono text-xs text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onChange={(event) => onChange({ ...block, url: event.target.value })}
+            placeholder="Or paste an image URL directly..."
+            type="text"
+            value={block.url}
+          />
+          <input
+            className="w-full border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onChange={(event) => onChange({ ...block, alt: event.target.value })}
+            placeholder="Alt text (describe the image for screen readers)"
+            type="text"
+            value={block.alt}
+          />
+          <input
+            className="w-full border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onChange={(event) =>
+              onChange({ ...block, caption: event.target.value })
+            }
+            placeholder="Caption (optional)"
+            type="text"
+            value={block.caption ?? ""}
+          />
+        </div>
+      )}
+
+      {block.type === "table" && (
+        <div className="space-y-3 overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                {block.headers.map((header, columnIndex) => (
+                  <th className="p-1" key={columnIndex}>
+                    <div className="flex items-center gap-1">
+                      <input
+                        className="w-full border border-zinc-300 bg-white px-2 py-2 text-sm font-bold text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+                        onChange={(event) => {
+                          const headers = block.headers.map((existing, i) =>
+                            i === columnIndex ? event.target.value : existing,
+                          );
+                          onChange({ ...block, headers });
+                        }}
+                        placeholder={`Column ${columnIndex + 1}`}
+                        type="text"
+                        value={header}
+                      />
+                      <button
+                        className="shrink-0 p-1 text-zinc-400 transition-colors hover:text-red-600 disabled:opacity-30"
+                        disabled={block.headers.length === 1}
+                        onClick={() =>
+                          onChange({
+                            ...block,
+                            headers: block.headers.filter((_, i) => i !== columnIndex),
+                            rows: block.rows.map((row) =>
+                              row.filter((_, i) => i !== columnIndex),
+                            ),
+                          })
+                        }
+                        title="Remove column"
+                        type="button"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, columnIndex) => (
+                    <td className="p-1" key={columnIndex}>
+                      <input
+                        className="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+                        onChange={(event) => {
+                          const rows = block.rows.map((existingRow, r) =>
+                            r === rowIndex
+                              ? existingRow.map((existingCell, c) =>
+                                  c === columnIndex ? event.target.value : existingCell,
+                                )
+                              : existingRow,
+                          );
+                          onChange({ ...block, rows });
+                        }}
+                        type="text"
+                        value={cell}
+                      />
+                    </td>
+                  ))}
+                  <td className="p-1">
+                    <button
+                      className="p-1 text-zinc-400 transition-colors hover:text-red-600 disabled:opacity-30"
+                      disabled={block.rows.length === 1}
+                      onClick={() =>
+                        onChange({
+                          ...block,
+                          rows: block.rows.filter((_, i) => i !== rowIndex),
+                        })
+                      }
+                      title="Remove row"
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="border border-zinc-300 px-3 py-1.5 font-mono text-xs text-zinc-700 transition-colors hover:border-zinc-900"
+              onClick={() =>
+                onChange({
+                  ...block,
+                  headers: [...block.headers, ""],
+                  rows: block.rows.map((row) => [...row, ""]),
+                })
+              }
+              type="button"
+            >
+              + Add column
+            </button>
+            <button
+              className="border border-zinc-300 px-3 py-1.5 font-mono text-xs text-zinc-700 transition-colors hover:border-zinc-900"
+              onClick={() =>
+                onChange({
+                  ...block,
+                  rows: [...block.rows, block.headers.map(() => "")],
+                })
+              }
+              type="button"
+            >
+              + Add row
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -314,11 +584,17 @@ export function PostForm({
           slug.trim() ||
           excerpt.trim() ||
           subtitle.trim() ||
-          blocks.some((block) =>
-            block.type === "list"
-              ? block.items.some((item) => item.trim())
-              : block.text.trim(),
-          ) ||
+          blocks.some((block) => {
+            if (block.type === "list") return block.items.some((item) => item.trim());
+            if (block.type === "image") return block.url.trim();
+            if (block.type === "table") {
+              return (
+                block.headers.some((header) => header.trim()) ||
+                block.rows.some((row) => row.some((cell) => cell.trim()))
+              );
+            }
+            return block.text.trim();
+          }) ||
           categoryId ||
           selectedTagIds.length > 0,
         );
@@ -632,8 +908,8 @@ export function PostForm({
               <div className="border-l-4 border-zinc-900 pl-4">
                 <h2 className="text-2xl font-bold text-zinc-900">Content</h2>
                 <p className="mt-1 text-sm text-zinc-600">
-                  Build the article from paragraph, heading, quote, and list
-                  blocks — reorder or remove them as needed
+                  Build the article from paragraph, heading, quote, list, and
+                  image blocks — reorder or remove them as needed
                 </p>
               </div>
 
@@ -678,6 +954,20 @@ export function PostForm({
                     type="button"
                   >
                     <ListIcon size={16} />+ List
+                  </button>
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("image")}
+                    type="button"
+                  >
+                    <ImageIcon size={16} />+ Image
+                  </button>
+                  <button
+                    className="flex items-center gap-2 border-2 border-zinc-900 px-4 py-2 font-mono text-sm text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                    onClick={() => addBlock("table")}
+                    type="button"
+                  >
+                    <TableIcon size={16} />+ Table
                   </button>
                 </div>
               </div>
