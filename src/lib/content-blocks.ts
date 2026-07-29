@@ -1,4 +1,5 @@
 import { ContentBlock } from "@/types/content-block";
+import { Post } from "@/types/post";
 
 export function getBlockText(block: ContentBlock): string {
   switch (block.type) {
@@ -37,4 +38,13 @@ export function stripInlineFormatting(text: string): string {
     (value, pattern) => value.replace(pattern, "$1"),
     text,
   );
+}
+
+export function getPostExcerpt(post: Post): string {
+  if (post.excerpt) {
+    return post.excerpt;
+  }
+
+  const paragraphText = stripInlineFormatting(getFirstParagraphText(post.content));
+  return `${paragraphText.slice(0, 200)}...`;
 }

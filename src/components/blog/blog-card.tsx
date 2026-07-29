@@ -2,7 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Pin } from "lucide-react";
 
-import { getPostExcerpt } from "@/lib/posts";
+import { getPostExcerpt } from "@/lib/content-blocks";
 import { Post } from "@/types/post";
 
 export function BlogCard({ post }: { post: Post }) {

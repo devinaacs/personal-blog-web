@@ -1,15 +1,5 @@
 import { apiFetch, apiFetchOrNull } from "@/lib/api";
-import { getFirstParagraphText, stripInlineFormatting } from "@/lib/content-blocks";
 import { PaginatedResult, Post } from "@/types/post";
-
-export function getPostExcerpt(post: Post): string {
-  if (post.excerpt) {
-    return post.excerpt;
-  }
-
-  const paragraphText = stripInlineFormatting(getFirstParagraphText(post.content));
-  return `${paragraphText.slice(0, 200)}...`;
-}
 
 export async function listPublishedPosts(
   params: {

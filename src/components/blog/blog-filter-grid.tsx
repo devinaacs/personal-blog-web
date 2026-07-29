@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 
 import { BlogCard } from "@/components/blog/blog-card";
-import { getPostExcerpt } from "@/lib/posts";
+import { getPostExcerpt } from "@/lib/content-blocks";
 import { Post } from "@/types/post";
 
 type SortOrder = "newest" | "oldest";

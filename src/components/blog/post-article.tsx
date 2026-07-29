@@ -6,7 +6,7 @@ import { ClapButton } from "@/components/blog/clap-button";
 import { InlineText } from "@/components/blog/inline-text";
 import { ShareButtons } from "@/components/blog/share-buttons";
 import { ViewTracker } from "@/components/blog/view-tracker";
-import { env } from "@/lib/env";
+import { NEXT_PUBLIC_APP_URL } from "@/lib/public-env";
 import { estimateReadingMinutes } from "@/lib/reading-time";
 import { BlockAlign, ContentBlock } from "@/types/content-block";
 import { Post } from "@/types/post";
@@ -239,7 +239,7 @@ export function PostArticle({
               <ShareButtons
                 slug={post.slug}
                 title={post.title}
-                url={`${env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`}
+                url={`${NEXT_PUBLIC_APP_URL}/blog/${post.slug}`}
               />
             </div>
           </div>

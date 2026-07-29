@@ -14,7 +14,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { getPostExcerpt } from "@/lib/posts";
+import { getPostExcerpt } from "@/lib/content-blocks";
 import { Post } from "@/types/post";
 
 const MAX_PINNED_POSTS = 3;

@@ -4,9 +4,9 @@ import { format } from "date-fns";
 
 import { PostDetail } from "@/components/blog/post-detail";
 import { createMetadata, metadata as baseMetadata } from "@/config/metadata";
+import { getPostExcerpt } from "@/lib/content-blocks";
 import {
   getPostBySlug,
-  getPostExcerpt,
   getSurroundingPosts,
   listPublishedPosts,
 } from "@/lib/posts";
