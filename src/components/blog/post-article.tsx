@@ -8,8 +8,15 @@ import { ShareButtons } from "@/components/blog/share-buttons";
 import { ViewTracker } from "@/components/blog/view-tracker";
 import { env } from "@/lib/env";
 import { estimateReadingMinutes } from "@/lib/reading-time";
-import { ContentBlock } from "@/types/content-block";
+import { BlockAlign, ContentBlock } from "@/types/content-block";
 import { Post } from "@/types/post";
+
+const ALIGN_CLASS: Record<BlockAlign, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+  justify: "text-justify",
+};
 
 function ContentBlockView({
   block,
@@ -21,21 +28,23 @@ function ContentBlockView({
   switch (block.type) {
     case "paragraph":
       return isFirstParagraph ? (
-        <p className="text-xl leading-relaxed text-zinc-700">
+        <p className={`text-xl leading-relaxed text-zinc-700 ${ALIGN_CLASS[block.align ?? "left"]}`}>
           <span className="float-left mt-1 mr-3 text-5xl leading-none font-bold text-zinc-900 sm:mt-2 sm:text-7xl">
             {block.text.charAt(0)}
           </span>
           <InlineText text={block.text.slice(1)} />
         </p>
       ) : (
-        <p className="text-lg leading-relaxed text-zinc-700">
+        <p className={`text-lg leading-relaxed text-zinc-700 ${ALIGN_CLASS[block.align ?? "left"]}`}>
           <InlineText text={block.text} />
         </p>
       );
 
     case "heading":
       return (
-        <div className="my-12 border-l-4 border-zinc-900 pl-8">
+        <div
+          className={`my-12 border-l-4 border-zinc-900 pl-8 ${ALIGN_CLASS[block.align ?? "left"]}`}
+        >
           <h2 className="text-3xl font-bold text-zinc-900">
             <InlineText text={block.text} />
           </h2>
@@ -44,7 +53,7 @@ function ContentBlockView({
 
     case "quote":
       return (
-        <blockquote className="relative my-16">
+        <blockquote className={`relative my-16 ${ALIGN_CLASS[block.align ?? "left"]}`}>
           <div className="absolute top-0 -left-4 h-full w-1 bg-zinc-900" />
           <div className="bg-zinc-50 p-8 md:p-12">
             <p className="mb-4 text-2xl leading-relaxed font-bold text-zinc-900 md:text-3xl">
@@ -61,7 +70,7 @@ function ContentBlockView({
 
     case "list":
       return (
-        <div className="my-12 space-y-4">
+        <div className={`my-12 space-y-4 ${ALIGN_CLASS[block.align ?? "left"]}`}>
           {block.items.map((item, itemIndex) => (
             <div className="flex items-start gap-4" key={itemIndex}>
               <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-zinc-900 font-mono text-sm text-white">
@@ -85,7 +94,9 @@ function ContentBlockView({
             src={block.url}
           />
           {block.caption && (
-            <figcaption className="mt-3 text-center font-mono text-sm text-zinc-500">
+            <figcaption
+              className={`mt-3 font-mono text-sm text-zinc-500 ${ALIGN_CLASS[block.align ?? "center"]}`}
+            >
               <InlineText text={block.caption} />
             </figcaption>
           )}
@@ -95,7 +106,7 @@ function ContentBlockView({
     case "table":
       return (
         <div className="my-12 overflow-x-auto border border-zinc-200">
-          <table className="w-full border-collapse text-left">
+          <table className={`w-full border-collapse ${ALIGN_CLASS[block.align ?? "left"]}`}>
             <thead>
               <tr className="bg-zinc-900">
                 {block.headers.map((header, headerIndex) => (

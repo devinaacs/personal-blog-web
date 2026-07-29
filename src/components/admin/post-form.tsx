@@ -3,6 +3,10 @@
 import { ClipboardEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   ArrowDown,
   ArrowUp,
   Eye,
@@ -19,11 +23,19 @@ import {
   X,
 } from "lucide-react";
 
+import { FormattableField } from "@/components/admin/formattable-field";
 import { PostArticle } from "@/components/blog/post-article";
 import { slugify } from "@/lib/slugify";
-import { ContentBlock } from "@/types/content-block";
+import { BlockAlign, ContentBlock } from "@/types/content-block";
 import { Post } from "@/types/post";
 import { Category, Tag } from "@/types/taxonomy";
+
+const ALIGN_OPTIONS: Array<{ value: BlockAlign; icon: typeof AlignLeft; label: string }> = [
+  { value: "left", icon: AlignLeft, label: "Align left" },
+  { value: "center", icon: AlignCenter, label: "Align center" },
+  { value: "right", icon: AlignRight, label: "Align right" },
+  { value: "justify", icon: AlignJustify, label: "Justify" },
+];
 
 function todayInputValue(): string {
   return new Date().toISOString().slice(0, 10);
@@ -181,6 +193,27 @@ function BlockEditor({
         </span>
 
         <div className="flex items-center gap-1">
+          <div className="mr-2 flex items-center gap-0.5 border border-zinc-300">
+            {ALIGN_OPTIONS.map(({ value, icon: Icon, label }) => {
+              const defaultAlign = block.type === "image" ? "center" : "left";
+              const isActive = (block.align ?? defaultAlign) === value;
+              return (
+                <button
+                  className={`p-1.5 transition-colors ${
+                    isActive
+                      ? "bg-zinc-900 text-white"
+                      : "text-zinc-500 hover:text-zinc-900"
+                  }`}
+                  key={value}
+                  onClick={() => onChange({ ...block, align: value })}
+                  title={label}
+                  type="button"
+                >
+                  <Icon size={14} />
+                </button>
+              );
+            })}
+          </div>
           <button
             className="p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 disabled:opacity-30"
             disabled={index === 0}
@@ -211,9 +244,10 @@ function BlockEditor({
       </div>
 
       {block.type === "paragraph" && (
-        <textarea
+        <FormattableField
           className="w-full resize-none border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-          onChange={(event) => onChange({ ...block, text: event.target.value })}
+          multiline
+          onChange={(text) => onChange({ ...block, text })}
           placeholder="Write your thoughts..."
           rows={4}
           value={block.text}
@@ -221,20 +255,20 @@ function BlockEditor({
       )}
 
       {block.type === "heading" && (
-        <input
+        <FormattableField
           className="w-full border border-zinc-300 bg-white px-4 py-3 text-lg font-bold text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-          onChange={(event) => onChange({ ...block, text: event.target.value })}
+          onChange={(text) => onChange({ ...block, text })}
           placeholder="A section title..."
-          type="text"
           value={block.text}
         />
       )}
 
       {block.type === "quote" && (
         <div className="space-y-3">
-          <textarea
+          <FormattableField
             className="w-full resize-none border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-            onChange={(event) => onChange({ ...block, text: event.target.value })}
+            multiline
+            onChange={(text) => onChange({ ...block, text })}
             placeholder="A memorable quote..."
             rows={3}
             value={block.text}
@@ -254,17 +288,16 @@ function BlockEditor({
       {block.type === "list" && (
         <div className="space-y-2">
           {block.items.map((item, itemIndex) => (
-            <div className="flex items-center gap-2" key={itemIndex}>
-              <input
+            <div className="flex items-start gap-2" key={itemIndex}>
+              <FormattableField
                 className="w-full border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-                onChange={(event) => {
+                onChange={(next) => {
                   const items = block.items.map((existing, i) =>
-                    i === itemIndex ? event.target.value : existing,
+                    i === itemIndex ? next : existing,
                   );
                   onChange({ ...block, items });
                 }}
                 placeholder="A list item..."
-                type="text"
                 value={item}
               />
               <button
@@ -351,13 +384,10 @@ function BlockEditor({
             type="text"
             value={block.alt}
           />
-          <input
+          <FormattableField
             className="w-full border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-            onChange={(event) =>
-              onChange({ ...block, caption: event.target.value })
-            }
+            onChange={(caption) => onChange({ ...block, caption })}
             placeholder="Caption (optional)"
-            type="text"
             value={block.caption ?? ""}
           />
         </div>
@@ -370,17 +400,16 @@ function BlockEditor({
               <tr>
                 {block.headers.map((header, columnIndex) => (
                   <th className="p-1" key={columnIndex}>
-                    <div className="flex items-center gap-1">
-                      <input
+                    <div className="flex items-start gap-1">
+                      <FormattableField
                         className="w-full border border-zinc-300 bg-white px-2 py-2 text-sm font-bold text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-                        onChange={(event) => {
+                        onChange={(next) => {
                           const headers = block.headers.map((existing, i) =>
-                            i === columnIndex ? event.target.value : existing,
+                            i === columnIndex ? next : existing,
                           );
                           onChange({ ...block, headers });
                         }}
                         placeholder={`Column ${columnIndex + 1}`}
-                        type="text"
                         value={header}
                       />
                       <button
@@ -410,19 +439,18 @@ function BlockEditor({
                 <tr key={rowIndex}>
                   {row.map((cell, columnIndex) => (
                     <td className="p-1" key={columnIndex}>
-                      <input
+                      <FormattableField
                         className="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
-                        onChange={(event) => {
+                        onChange={(next) => {
                           const rows = block.rows.map((existingRow, r) =>
                             r === rowIndex
                               ? existingRow.map((existingCell, c) =>
-                                  c === columnIndex ? event.target.value : existingCell,
+                                  c === columnIndex ? next : existingCell,
                                 )
                               : existingRow,
                           );
                           onChange({ ...block, rows });
                         }}
-                        type="text"
                         value={cell}
                       />
                     </td>
