@@ -5,15 +5,13 @@ import { Pin } from "lucide-react";
 import { getPostExcerpt } from "@/lib/posts";
 import { Post } from "@/types/post";
 
-export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
+export function BlogCard({ post }: { post: Post }) {
   const excerpt = getPostExcerpt(post);
   const date = format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase();
 
   return (
     <Link
-      className={`group relative block cursor-pointer overflow-hidden border border-zinc-200 bg-white transition-all duration-300 hover:border-zinc-900 ${
-        isLarge ? "md:col-span-2 md:row-span-2" : ""
-      }`}
+      className="group relative block cursor-pointer overflow-hidden border border-zinc-200 bg-white transition-all duration-300 hover:border-zinc-900"
       href={`/blog/${post.slug}`}
     >
       {post.pinned && (
@@ -40,21 +38,11 @@ export function BlogCard({ post, isLarge }: { post: Post; isLarge?: boolean }) {
           )}
         </div>
 
-        <h3
-          className={`mb-4 leading-tight font-bold text-zinc-900 ${
-            isLarge ? "text-3xl md:text-4xl" : "text-xl md:text-2xl"
-          }`}
-        >
+        <h3 className="mb-4 text-xl leading-tight font-bold text-zinc-900 md:text-2xl">
           {post.title}
         </h3>
 
-        <p
-          className={`grow leading-relaxed text-zinc-600 ${
-            isLarge ? "text-lg" : "text-base"
-          }`}
-        >
-          {excerpt}
-        </p>
+        <p className="grow text-base leading-relaxed text-zinc-600">{excerpt}</p>
 
         {post.tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">

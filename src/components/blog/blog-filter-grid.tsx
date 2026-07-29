@@ -70,9 +70,8 @@ export function BlogFilterGrid({
         return a.pinned ? -1 : 1;
       }
 
-      const aTime = new Date(a.publishedAt).getTime();
-      const bTime = new Date(b.publishedAt).getTime();
-      return sortOrder === "newest" ? bTime - aTime : aTime - bTime;
+      const diff = Number(a.number) - Number(b.number);
+      return sortOrder === "newest" ? -diff : diff;
     });
   }, [posts, activeCategory, activeTags, search, sortOrder]);
 
@@ -179,8 +178,8 @@ export function BlogFilterGrid({
         </div>
       ) : (
         <div className="grid auto-rows-fr gap-6 md:grid-cols-3">
-          {filteredPosts.map((post, index) => (
-            <BlogCard isLarge={index === 0} key={post.id} post={post} />
+          {filteredPosts.map((post) => (
+            <BlogCard key={post.id} post={post} />
           ))}
         </div>
       )}
