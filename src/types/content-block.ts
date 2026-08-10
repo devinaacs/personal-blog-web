@@ -31,6 +31,8 @@ export type ImageBlock = {
   alt: string;
   caption?: string;
   align?: BlockAlign;
+  width?: number;
+  height?: number;
 };
 
 export type TableBlock = {

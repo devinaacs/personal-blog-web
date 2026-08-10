@@ -9,9 +9,7 @@ export function ViewTracker({ slug }: { slug: string }) {
     if (trackedRef.current) return;
     trackedRef.current = true;
 
-    fetch(`/api/posts/${slug}/view`, { method: "POST" }).catch(() => {
-      // best-effort; a missed view isn't worth surfacing to the reader
-    });
+    fetch(`/api/posts/${slug}/view`, { method: "POST" }).catch(() => {});
   }, [slug]);
 
   return null;

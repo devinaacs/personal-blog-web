@@ -135,6 +135,15 @@ async function uploadImage(file: File): Promise<string> {
   return body.data.url;
 }
 
+function loadImageDimensions(url: string): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const image = new window.Image();
+    image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+    image.onerror = () => resolve(null);
+    image.src = url;
+  });
+}
+
 function BlockEditor({
   block,
   index,
@@ -163,7 +172,8 @@ function BlockEditor({
 
     try {
       const url = await uploadImage(file);
-      onChange({ ...block, url });
+      const dimensions = await loadImageDimensions(url);
+      onChange({ ...block, url, ...dimensions });
     } catch (error) {
       setUploadError(
         error instanceof Error ? error.message : "Failed to upload image",
@@ -372,6 +382,12 @@ function BlockEditor({
 
           <input
             className="w-full border border-zinc-300 bg-white px-4 py-2.5 font-mono text-xs text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none"
+            onBlur={async (event) => {
+              const url = event.target.value.trim();
+              if (!url || url === block.url) return;
+              const dimensions = await loadImageDimensions(url);
+              onChange({ ...block, url, ...dimensions });
+            }}
             onChange={(event) => onChange({ ...block, url: event.target.value })}
             placeholder="Or paste an image URL directly..."
             type="text"

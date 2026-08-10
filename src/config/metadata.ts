@@ -55,11 +55,8 @@ const baseMetadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-// Used in layout.tsx — no canonical here so pages don't silently inherit "/"
 export const metadata: Metadata = baseMetadata;
 
-// Use this in every page to set the correct canonical for that route.
-// Example: export const metadata = createMetadata("/about", { title: "About" });
 export function createMetadata(
   path: string,
   overrides?: Partial<Metadata>,

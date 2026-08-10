@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { format } from "date-fns";
@@ -87,12 +88,23 @@ function ContentBlockView({
     case "image":
       return (
         <figure className="my-12">
-          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded images have no known dimensions ahead of time */}
-          <img
-            alt={block.alt}
-            className="w-full rounded-lg border border-zinc-200"
-            src={block.url}
-          />
+          {block.width && block.height ? (
+            <Image
+              alt={block.alt}
+              className="h-auto w-full rounded-lg border border-zinc-200"
+              height={block.height}
+              sizes="(max-width: 768px) 100vw, 768px"
+              src={block.url}
+              width={block.width}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- legacy posts saved before dimensions were captured
+            <img
+              alt={block.alt}
+              className="w-full rounded-lg border border-zinc-200"
+              src={block.url}
+            />
+          )}
           {block.caption && (
             <figcaption
               className={`mt-3 font-mono text-sm text-zinc-500 ${ALIGN_CLASS[block.align ?? "center"]}`}

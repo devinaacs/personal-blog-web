@@ -4,8 +4,6 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  // React dev mode needs eval() for component-stack reconstruction;
-  // never allow it in production.
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https: data:",
@@ -21,9 +19,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
-    // Wildcarded because the workspace image URL is admin-configurable
-    // (via /admin/settings) and can point to any host. Safe here since
-    // only an authenticated admin can set it, not public input.
     remotePatterns: [
       {
         protocol: "https",

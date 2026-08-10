@@ -3,8 +3,6 @@
 import { ComponentType, useEffect, useRef, useState } from "react";
 import { Check, Link as LinkIcon, Share2 } from "lucide-react";
 
-// import { FacebookIcon } from "@/components/icons/facebook-icon";
-// import { TwitterIcon } from "@/components/icons/twitter-icon";
 import { SharePlatform } from "@/lib/engagement-constants";
 
 type ShareOption = {
@@ -16,20 +14,6 @@ type ShareOption = {
 
 const SHARE_OPTIONS: ShareOption[] = [
   { platform: "copy-link", label: "Copy link", icon: LinkIcon },
-  // {
-  //   platform: "twitter",
-  //   label: "Twitter / X",
-  //   icon: TwitterIcon,
-  //   hrefFor: (url, title) =>
-  //     `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-  // },
-  // {
-  //   platform: "facebook",
-  //   label: "Facebook",
-  //   icon: FacebookIcon,
-  //   hrefFor: (url) =>
-  //     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-  // },
 ];
 
 export function ShareButtons({
@@ -66,9 +50,7 @@ export function ShareButtons({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ platform }),
-    }).catch(() => {
-      // best-effort; the share itself already happened
-    });
+    }).catch(() => {});
   }
 
   async function handleOptionClick(option: ShareOption) {

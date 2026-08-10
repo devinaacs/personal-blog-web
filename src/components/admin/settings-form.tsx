@@ -273,7 +273,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
 
               <div className="h-24 w-24 shrink-0 overflow-hidden border-2 border-zinc-900 bg-zinc-100">
                 {workspaceImageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element -- live preview of an arbitrary admin-entered URL
+                  // eslint-disable-next-line @next/next/no-img-element -- admin preview of an arbitrary external image URL, updated live while typing
                   <img
                     alt="Workspace preview"
                     className="h-full w-full object-cover"

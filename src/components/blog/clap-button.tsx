@@ -45,9 +45,7 @@ export function ClapButton({
         setReaderClapCount(body.data.readerClapCount);
         setPostClapCount(body.data.postClapCount);
       })
-      .catch(() => {
-        // best-effort; leave initial values in place
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -56,7 +54,8 @@ export function ClapButton({
 
   useEffect(() => {
     return () => {
-      if (holdIntervalRef.current) window.clearInterval(holdIntervalRef.current);
+      if (holdIntervalRef.current)
+        window.clearInterval(holdIntervalRef.current);
       if (syncTimeoutRef.current) window.clearTimeout(syncTimeoutRef.current);
     };
   }, []);
@@ -90,9 +89,7 @@ export function ClapButton({
         setReaderClapCount(body.data.readerClapCount);
         setPostClapCount(body.data.postClapCount);
       })
-      .catch(() => {
-        // best-effort; optimistic state stands on network failure
-      });
+      .catch(() => {});
   }
 
   function scheduleSync() {
@@ -139,7 +136,9 @@ export function ClapButton({
           <span
             className="pointer-events-none absolute top-0 left-1/2 font-mono text-sm font-bold text-zinc-900"
             key={id}
-            style={{ animation: `float-up ${FLOATER_LIFETIME_MS}ms ease-out forwards` }}
+            style={{
+              animation: `float-up ${FLOATER_LIFETIME_MS}ms ease-out forwards`,
+            }}
           >
             +1
           </span>
