@@ -1,90 +1,106 @@
-import { Fragment } from "react";
+import { Fragment, ReactNode } from "react";
 
-type InlineTokenType = "text" | "code" | "bold" | "underline" | "italic";
+type Mark = "bold" | "underline" | "italic";
 
-interface InlineToken {
-  type: InlineTokenType;
-  value: string;
+interface StyledRun {
+  type: "text";
+  text: string;
+  marks: Mark[];
 }
+
+interface CodeRun {
+  type: "code";
+  text: string;
+}
+
+type InlineRun = StyledRun | CodeRun;
 
 const CODE_PATTERN = /`([^`\n]+)`/g;
-const BOLD_PATTERN = /\*\*([^\n]+?)\*\*/g;
-const UNDERLINE_PATTERN = /\+\+([^\n]+?)\+\+/g;
-const ITALIC_PATTERN = /(?<!\w)_([^_\n]+?)_(?!\w)/g;
 
-const PASSES: Array<{ pattern: RegExp; type: Exclude<InlineTokenType, "text"> }> = [
-  { pattern: CODE_PATTERN, type: "code" },
-  { pattern: BOLD_PATTERN, type: "bold" },
-  { pattern: UNDERLINE_PATTERN, type: "underline" },
-  { pattern: ITALIC_PATTERN, type: "italic" },
+const MARK_PATTERNS: Array<{ mark: Mark; pattern: RegExp }> = [
+  { mark: "bold", pattern: /\*\*([^\n]+?)\*\*/ },
+  { mark: "underline", pattern: /\+\+([^\n]+?)\+\+/ },
+  { mark: "italic", pattern: /(?<!\w)_([^_\n]+?)_(?!\w)/ },
 ];
 
-function expandPass(
-  tokens: InlineToken[],
-  pattern: RegExp,
-  type: Exclude<InlineTokenType, "text">,
-): InlineToken[] {
-  const output: InlineToken[] = [];
+function parseMarks(text: string, marks: Mark[]): StyledRun[] {
+  if (!text) return [];
 
-  for (const token of tokens) {
-    if (token.type !== "text") {
-      output.push(token);
-      continue;
-    }
+  let earliest: { index: number; length: number; inner: string; mark: Mark } | null = null;
 
-    let lastIndex = 0;
-    for (const match of token.value.matchAll(pattern)) {
-      const start = match.index ?? 0;
-      const full = match[0];
-      const inner = match[1];
-
-      if (start > lastIndex) {
-        output.push({ type: "text", value: token.value.slice(lastIndex, start) });
-      }
-      output.push({ type, value: inner });
-      lastIndex = start + full.length;
-    }
-    if (lastIndex < token.value.length) {
-      output.push({ type: "text", value: token.value.slice(lastIndex) });
+  for (const { mark, pattern } of MARK_PATTERNS) {
+    if (marks.includes(mark)) continue;
+    const match = pattern.exec(text);
+    if (match && match.index !== undefined && (!earliest || match.index < earliest.index)) {
+      earliest = { index: match.index, length: match[0].length, inner: match[1], mark };
     }
   }
 
-  return output;
+  if (!earliest) {
+    return [{ type: "text", text, marks }];
+  }
+
+  const before = text.slice(0, earliest.index);
+  const after = text.slice(earliest.index + earliest.length);
+
+  return [
+    ...parseMarks(before, marks),
+    ...parseMarks(earliest.inner, [...marks, earliest.mark]),
+    ...parseMarks(after, marks),
+  ];
 }
 
-function tokenize(text: string): InlineToken[] {
-  let tokens: InlineToken[] = [{ type: "text", value: text }];
-  for (const { pattern, type } of PASSES) {
-    tokens = expandPass(tokens, pattern, type);
+function tokenize(text: string): InlineRun[] {
+  const runs: InlineRun[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(CODE_PATTERN)) {
+    const start = match.index ?? 0;
+
+    if (start > lastIndex) {
+      runs.push(...parseMarks(text.slice(lastIndex, start), []));
+    }
+    runs.push({ type: "code", text: match[1] });
+    lastIndex = start + match[0].length;
   }
-  return tokens;
+
+  if (lastIndex < text.length) {
+    runs.push(...parseMarks(text.slice(lastIndex), []));
+  }
+
+  return runs;
+}
+
+function applyMarks(text: string, marks: Mark[]): ReactNode {
+  return marks.reduce<ReactNode>((node, mark) => {
+    switch (mark) {
+      case "bold":
+        return <strong>{node}</strong>;
+      case "underline":
+        return <u>{node}</u>;
+      case "italic":
+        return <em>{node}</em>;
+    }
+  }, text);
 }
 
 export function InlineText({ text }: { text: string }) {
-  const tokens = tokenize(text);
+  const runs = tokenize(text);
 
   return (
     <>
-      {tokens.map((token, index) => {
-        switch (token.type) {
-          case "code":
-            return (
-              <code
-                key={index}
-                style={{ color: "#ff0000", backgroundColor: "#eeeeee" }}
-              >
-                {token.value}
-              </code>
-            );
-          case "bold":
-            return <strong key={index}>{token.value}</strong>;
-          case "underline":
-            return <u key={index}>{token.value}</u>;
-          case "italic":
-            return <em key={index}>{token.value}</em>;
-          default:
-            return <Fragment key={index}>{token.value}</Fragment>;
+      {runs.map((run, index) => {
+        if (run.type === "code") {
+          return (
+            <code
+              key={index}
+              style={{ color: "#ff0000", backgroundColor: "#eeeeee" }}
+            >
+              {run.text}
+            </code>
+          );
         }
+        return <Fragment key={index}>{applyMarks(run.text, run.marks)}</Fragment>;
       })}
     </>
   );
