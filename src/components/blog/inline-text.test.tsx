@@ -39,4 +39,19 @@ describe("InlineText", () => {
     expect(container.querySelector("em")).toHaveTextContent("italic");
     expect(container.querySelector("strong em, em strong")).toBeNull();
   });
+
+  it("renders a highlight with the given color", () => {
+    const { container } = render(<InlineText text="{hl:flamingo}word{/hl}" />);
+    const mark = container.querySelector("mark");
+    expect(mark).toHaveTextContent("word");
+    expect(mark).toHaveStyle({ backgroundColor: "#F2A0A0" });
+  });
+
+  it("combines highlight with bold", () => {
+    const { container } = render(<InlineText text="**{hl:cream}word{/hl}**" />);
+    const strong = container.querySelector("strong");
+    const mark = container.querySelector("mark");
+    expect(mark).toHaveTextContent("word");
+    expect(mark?.contains(strong)).toBe(true);
+  });
 });

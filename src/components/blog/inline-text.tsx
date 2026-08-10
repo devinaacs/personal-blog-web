@@ -1,6 +1,20 @@
 import { Fragment, ReactNode } from "react";
 
-type Mark = "bold" | "underline" | "italic";
+export const HIGHLIGHT_COLORS = {
+  grey: "#F0F2F2",
+  latte: "#D9C4B8",
+  cream: "#F2DDD0",
+  lemonade: "#F2B2AC",
+  flamingo: "#F2A0A0",
+} as const;
+
+export type HighlightColor = keyof typeof HIGHLIGHT_COLORS;
+
+type SimpleMarkKind = "bold" | "underline" | "italic";
+
+type Mark =
+  | { kind: SimpleMarkKind }
+  | { kind: "highlight"; color: HighlightColor };
 
 interface StyledRun {
   type: "text";
@@ -17,35 +31,63 @@ type InlineRun = StyledRun | CodeRun;
 
 const CODE_PATTERN = /`([^`\n]+)`/g;
 
-const MARK_PATTERNS: Array<{ mark: Mark; pattern: RegExp }> = [
-  { mark: "bold", pattern: /\*\*([^\n]+?)\*\*/ },
-  { mark: "underline", pattern: /\+\+([^\n]+?)\+\+/ },
-  { mark: "italic", pattern: /(?<!\w)_([^_\n]+?)_(?!\w)/ },
-];
+const SIMPLE_MARK_PATTERNS: Record<SimpleMarkKind, RegExp> = {
+  bold: /\*\*([^\n]+?)\*\*/,
+  underline: /\+\+([^\n]+?)\+\+/,
+  italic: /(?<!\w)_([^_\n]+?)_(?!\w)/,
+};
+
+const HIGHLIGHT_PATTERN = new RegExp(
+  `\\{hl:(${Object.keys(HIGHLIGHT_COLORS).join("|")})\\}([^\\n]+?)\\{/hl\\}`,
+);
+
+interface MarkMatch {
+  index: number;
+  length: number;
+  inner: string;
+  mark: Mark;
+}
+
+function findEarliestMark(text: string, marks: Mark[]): MarkMatch | null {
+  let earliest: MarkMatch | null = null;
+
+  for (const kind of Object.keys(SIMPLE_MARK_PATTERNS) as SimpleMarkKind[]) {
+    if (marks.some((mark) => mark.kind === kind)) continue;
+    const match = SIMPLE_MARK_PATTERNS[kind].exec(text);
+    if (match && match.index !== undefined && (!earliest || match.index < earliest.index)) {
+      earliest = { index: match.index, length: match[0].length, inner: match[1], mark: { kind } };
+    }
+  }
+
+  if (!marks.some((mark) => mark.kind === "highlight")) {
+    const match = HIGHLIGHT_PATTERN.exec(text);
+    if (match && match.index !== undefined && (!earliest || match.index < earliest.index)) {
+      earliest = {
+        index: match.index,
+        length: match[0].length,
+        inner: match[2],
+        mark: { kind: "highlight", color: match[1] as HighlightColor },
+      };
+    }
+  }
+
+  return earliest;
+}
 
 function parseMarks(text: string, marks: Mark[]): StyledRun[] {
   if (!text) return [];
 
-  let earliest: { index: number; length: number; inner: string; mark: Mark } | null = null;
-
-  for (const { mark, pattern } of MARK_PATTERNS) {
-    if (marks.includes(mark)) continue;
-    const match = pattern.exec(text);
-    if (match && match.index !== undefined && (!earliest || match.index < earliest.index)) {
-      earliest = { index: match.index, length: match[0].length, inner: match[1], mark };
-    }
-  }
-
-  if (!earliest) {
+  const found = findEarliestMark(text, marks);
+  if (!found) {
     return [{ type: "text", text, marks }];
   }
 
-  const before = text.slice(0, earliest.index);
-  const after = text.slice(earliest.index + earliest.length);
+  const before = text.slice(0, found.index);
+  const after = text.slice(found.index + found.length);
 
   return [
     ...parseMarks(before, marks),
-    ...parseMarks(earliest.inner, [...marks, earliest.mark]),
+    ...parseMarks(found.inner, [...marks, found.mark]),
     ...parseMarks(after, marks),
   ];
 }
@@ -73,13 +115,19 @@ function tokenize(text: string): InlineRun[] {
 
 function applyMarks(text: string, marks: Mark[]): ReactNode {
   return marks.reduce<ReactNode>((node, mark) => {
-    switch (mark) {
+    switch (mark.kind) {
       case "bold":
         return <strong>{node}</strong>;
       case "underline":
         return <u>{node}</u>;
       case "italic":
         return <em>{node}</em>;
+      case "highlight":
+        return (
+          <mark style={{ backgroundColor: HIGHLIGHT_COLORS[mark.color], color: "inherit" }}>
+            {node}
+          </mark>
+        );
     }
   }, text);
 }
