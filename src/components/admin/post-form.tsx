@@ -9,11 +9,14 @@ import {
   AlignRight,
   ArrowDown,
   ArrowUp,
+  Columns2,
   Eye,
+  GripVertical,
   Heading,
   Image as ImageIcon,
   List as ListIcon,
   Loader2,
+  Pencil,
   Quote as QuoteIcon,
   Save,
   Table as TableIcon,
@@ -23,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { FormattableField } from "@/components/admin/formattable-field";
 import { PostArticle } from "@/components/blog/post-article";
 import { slugify } from "@/lib/slugify";
@@ -98,6 +102,16 @@ function cleanBlocks(blocks: ContentBlock[]): ContentBlock[] {
     });
 }
 
+function reorder<T>(list: T[], from: number, to: number): T[] {
+  if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) {
+    return list;
+  }
+  const next = [...list];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
 const BLOCK_LABELS: Record<ContentBlock["type"], string> = {
   paragraph: "Paragraph",
   heading: "Heading",
@@ -151,6 +165,12 @@ function BlockEditor({
   onChange,
   onRemove,
   onMove,
+  isDragging,
+  isDragOver,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: {
   block: ContentBlock;
   index: number;
@@ -158,11 +178,18 @@ function BlockEditor({
   onChange: (block: ContentBlock) => void;
   onRemove: () => void;
   onMove: (direction: -1 | 1) => void;
+  isDragging: boolean;
+  isDragOver: boolean;
+  onDragStart: () => void;
+  onDragOver: () => void;
+  onDrop: () => void;
+  onDragEnd: () => void;
 }) {
   const Icon = BLOCK_ICONS[block.type];
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   async function handleFile(file: File | null | undefined) {
     if (!file || block.type !== "image") return;
@@ -195,9 +222,37 @@ function BlockEditor({
   }
 
   return (
-    <div className="border border-zinc-300 bg-zinc-50 p-4">
+    <div
+      className={`border bg-zinc-50 p-4 transition-[opacity,border-color] ${
+        isDragOver ? "border-t-4 border-t-zinc-900" : ""
+      } ${isDragging ? "opacity-40" : "border-zinc-300"}`}
+      onDragOver={(event) => {
+        event.preventDefault();
+        onDragOver();
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        onDrop();
+      }}
+      ref={cardRef}
+    >
       <div className="mb-3 flex items-center justify-between">
         <span className="flex items-center gap-2 font-mono text-xs tracking-wider text-zinc-500 uppercase">
+          <span
+            className="cursor-grab p-0.5 text-zinc-400 transition-colors hover:text-zinc-900 active:cursor-grabbing"
+            draggable
+            onDragEnd={onDragEnd}
+            onDragStart={(event) => {
+              event.dataTransfer.effectAllowed = "move";
+              if (cardRef.current) {
+                event.dataTransfer.setDragImage(cardRef.current, 20, 20);
+              }
+              onDragStart();
+            }}
+            title="Drag to reorder"
+          >
+            <GripVertical size={14} />
+          </span>
           <Icon size={14} />
           {BLOCK_LABELS[block.type]}
         </span>
@@ -548,18 +603,27 @@ export function PostForm({
   const [publishedAt, setPublishedAt] = useState(
     initialPost ? initialPost.publishedAt.slice(0, 10) : todayInputValue(),
   );
-  const [blocks, setBlocks] = useState<ContentBlock[]>(
-    initialPost
-      ? [...initialPost.content]
-      : [createEmptyBlock("paragraph"), createEmptyBlock("paragraph")],
+  const initialBlocks: ContentBlock[] = initialPost
+    ? [...initialPost.content]
+    : [createEmptyBlock("paragraph"), createEmptyBlock("paragraph")];
+  const [blocks, setBlocks] = useState<ContentBlock[]>(initialBlocks);
+  // Stable per-block ids for React keys, kept in lockstep with `blocks`.
+  // Without these, keying by array index would let a block's local state
+  // (e.g. an image's upload spinner) stick to the wrong block after a
+  // drag-and-drop reorder.
+  const [blockIds, setBlockIds] = useState<string[]>(() =>
+    initialBlocks.map(() => crypto.randomUUID()),
   );
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [categoryId, setCategoryId] = useState(
     initialPost?.category?.id ?? "",
   );
   const [selectedTagIds, setSelectedTagIds] = useState(
     initialPost ? initialPost.tags.map((tag) => tag.id) : [],
   );
-  const [showPreview, setShowPreview] = useState(false);
+  const [viewMode, setViewMode] = useState<"edit" | "split" | "preview">("edit");
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -590,6 +654,7 @@ export function PostForm({
 
   function addBlock(type: ContentBlock["type"]) {
     setBlocks((prev) => [...prev, createEmptyBlock(type)]);
+    setBlockIds((prev) => [...prev, crypto.randomUUID()]);
   }
 
   function updateBlockAt(index: number, block: ContentBlock) {
@@ -598,16 +663,20 @@ export function PostForm({
 
   function removeBlockAt(index: number) {
     setBlocks((prev) => prev.filter((_, i) => i !== index));
+    setBlockIds((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function moveBlockAt(index: number, direction: -1 | 1) {
-    setBlocks((prev) => {
-      const target = index + direction;
-      if (target < 0 || target >= prev.length) return prev;
-      const next = [...prev];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
+  function moveBlockTo(from: number, to: number) {
+    setBlocks((prev) => reorder(prev, from, to));
+    setBlockIds((prev) => reorder(prev, from, to));
+  }
+
+  function handleBlockDrop(dropIndex: number) {
+    if (draggedIndex !== null) {
+      moveBlockTo(draggedIndex, dropIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   }
 
   function handleClose() {
@@ -643,10 +712,16 @@ export function PostForm({
           selectedTagIds.length > 0,
         );
 
-    if (isDirty && !confirm("Discard your changes? They will be lost.")) {
+    if (isDirty) {
+      setShowDiscardConfirm(true);
       return;
     }
 
+    router.push("/admin");
+  }
+
+  function confirmDiscard() {
+    setShowDiscardConfirm(false);
     router.push("/admin");
   }
 
@@ -741,16 +816,29 @@ export function PostForm({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              className="flex flex-1 items-center justify-center gap-2 border border-zinc-700 bg-zinc-800 px-4 py-2 text-white transition-colors hover:bg-zinc-700 sm:flex-none"
-              onClick={() => setShowPreview((prev) => !prev)}
-              type="button"
-            >
-              <Eye size={18} />
-              <span className="font-mono text-sm">
-                {showPreview ? "Edit" : "Preview"}
-              </span>
-            </button>
+            <div className="flex border border-zinc-700 bg-zinc-800">
+              {(
+                [
+                  { mode: "edit", icon: Pencil, label: "Edit" },
+                  { mode: "split", icon: Columns2, label: "Split" },
+                  { mode: "preview", icon: Eye, label: "Preview" },
+                ] as const
+              ).map(({ mode, icon: Icon, label }) => (
+                <button
+                  className={`flex items-center gap-2 px-3 py-2 font-mono text-sm transition-colors ${
+                    viewMode === mode
+                      ? "bg-white text-zinc-900"
+                      : "text-zinc-300 hover:bg-zinc-700"
+                  }`}
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  type="button"
+                >
+                  <Icon size={16} />
+                  <span className="hidden sm:inline">{label}</span>
+                </button>
+              ))}
+            </div>
 
             <button
               className="flex flex-1 items-center justify-center gap-2 bg-white px-4 py-2 font-bold text-zinc-900 transition-colors hover:bg-zinc-200 disabled:opacity-50 sm:flex-none sm:px-6"
@@ -773,14 +861,18 @@ export function PostForm({
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div
+        className={`mx-auto px-4 py-8 sm:px-6 ${
+          viewMode === "split" ? "max-w-[1600px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8" : "max-w-6xl"
+        }`}
+      >
         {error && (
-          <div className="mb-6 border-2 border-red-600 bg-red-950 px-4 py-3 font-mono text-sm text-red-400">
+          <div className="mb-6 border-2 border-red-600 bg-red-950 px-4 py-3 font-mono text-sm text-red-400 lg:col-span-2">
             ✗ {error}
           </div>
         )}
 
-        {!showPreview ? (
+        {viewMode !== "preview" && (
           <div className="space-y-8">
             <div className="space-y-6 bg-white p-4 sm:p-8">
               <div className="border-l-4 border-zinc-900 pl-4">
@@ -962,9 +1054,18 @@ export function PostForm({
                   <BlockEditor
                     block={block}
                     index={index}
-                    key={index}
+                    isDragging={draggedIndex === index}
+                    isDragOver={dragOverIndex === index && draggedIndex !== null && draggedIndex !== index}
+                    key={blockIds[index]}
                     onChange={(next) => updateBlockAt(index, next)}
-                    onMove={(direction) => moveBlockAt(index, direction)}
+                    onDragEnd={() => {
+                      setDraggedIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    onDragOver={() => setDragOverIndex(index)}
+                    onDragStart={() => setDraggedIndex(index)}
+                    onDrop={() => handleBlockDrop(index)}
+                    onMove={(direction) => moveBlockTo(index, index + direction)}
                     onRemove={() => removeBlockAt(index)}
                     total={blocks.length}
                   />
@@ -1017,10 +1118,25 @@ export function PostForm({
               </div>
             </div>
           </div>
-        ) : (
-          <PostArticle post={previewPost} />
+        )}
+
+        {viewMode !== "edit" && (
+          <div className={viewMode === "split" ? "lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto" : ""}>
+            <PostArticle post={previewPost} />
+          </div>
         )}
       </div>
+
+      <ConfirmDialog
+        cancelLabel="Keep editing"
+        confirmLabel="Discard"
+        description="Your changes will be lost."
+        destructive
+        onCancel={() => setShowDiscardConfirm(false)}
+        onConfirm={confirmDiscard}
+        open={showDiscardConfirm}
+        title="Discard your changes?"
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Save, X } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { SiteSettings } from "@/types/settings";
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
@@ -27,6 +28,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   function updateListItem(
     setter: React.Dispatch<React.SetStateAction<string[]>>,
@@ -55,10 +57,16 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   }
 
   function handleClose() {
-    if (isDirty() && !confirm("Discard your changes? They will be lost.")) {
+    if (isDirty()) {
+      setShowDiscardConfirm(true);
       return;
     }
 
+    router.push("/admin");
+  }
+
+  function confirmDiscard() {
+    setShowDiscardConfirm(false);
     router.push("/admin");
   }
 
@@ -420,6 +428,17 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        cancelLabel="Keep editing"
+        confirmLabel="Discard"
+        description="Your changes will be lost."
+        destructive
+        onCancel={() => setShowDiscardConfirm(false)}
+        onConfirm={confirmDiscard}
+        open={showDiscardConfirm}
+        title="Discard your changes?"
+      />
     </div>
   );
 }
