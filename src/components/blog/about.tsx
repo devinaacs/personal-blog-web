@@ -31,6 +31,7 @@ export async function About({
                   alt="workspace"
                   className="object-cover grayscale"
                   fill
+                  priority
                   sizes="(min-width: 768px) 33vw, 100vw"
                   src={settings.workspaceImageUrl}
                 />
@@ -39,11 +40,9 @@ export async function About({
           </Reveal>
 
           <Reveal as="div" className="md:col-span-8" delay={0.1} y={16}>
-            <div className="columns-1 gap-10 text-lg leading-relaxed text-ink-soft sm:columns-2">
+            <div className="max-w-2xl space-y-5 text-lg leading-relaxed text-ink-soft">
               {settings.bio.map((paragraph, index) => (
-                <p className="mb-6 break-inside-avoid" key={index}>
-                  {paragraph}
-                </p>
+                <p key={index}>{paragraph}</p>
               ))}
             </div>
 
