@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { BlogCard } from "@/components/blog/blog-card";
@@ -38,8 +38,11 @@ export function BlogFilterGrid({
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { categories, tags } = useUniqueTaxonomy(posts);
+  const categoryName = categories.find((c) => c.slug === activeCategory)?.name;
+  const activeCount = (activeCategory ? 1 : 0) + activeTags.length;
 
   const filteredPosts = useMemo(() => {
     let result = posts;
@@ -93,10 +96,10 @@ export function BlogFilterGrid({
           <div className="relative flex-1">
             <Search
               className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-faint"
-              size={18}
+              size={16}
             />
             <input
-              className="w-full bg-paper py-4 pr-4 pl-11 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none"
+              className="w-full bg-paper py-3 pr-4 pl-11 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none"
               onChange={(event) => setSearch(event.target.value)}
               placeholder="search posts, tags..."
               type="text"
@@ -106,7 +109,7 @@ export function BlogFilterGrid({
 
           <div className="relative">
             <select
-              className="w-full appearance-none bg-paper py-4 pr-10 pl-4 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none sm:w-auto"
+              className="w-full appearance-none bg-paper py-3 pr-10 pl-4 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none sm:w-auto"
               onChange={(event) => setSortOrder(event.target.value as SortOrder)}
               value={sortOrder}
             >
@@ -115,56 +118,128 @@ export function BlogFilterGrid({
             </select>
             <ChevronDown
               className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-faint"
-              size={16}
+              size={14}
             />
           </div>
+
+          <button
+            className={`flex items-center justify-center gap-2 px-4 py-3 font-mono text-xs tracking-wider uppercase transition-colors ${
+              filtersOpen ? "bg-ink text-paper" : "text-ink-soft hover:bg-paper-dim"
+            }`}
+            onClick={() => setFiltersOpen((prev) => !prev)}
+            type="button"
+          >
+            <SlidersHorizontal size={14} />
+            filters
+            {activeCount > 0 && (
+              <span
+                className={`flex h-4 w-4 items-center justify-center text-[10px] ${
+                  filtersOpen ? "bg-paper text-ink" : "bg-ink text-paper"
+                }`}
+              >
+                {activeCount}
+              </span>
+            )}
+            <ChevronDown
+              className={`transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+              size={14}
+            />
+          </button>
         </div>
 
-        {categories.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
-            <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
-              Category
-            </span>
-            {categories.map((category) => (
+        {!filtersOpen && activeCount > 0 && (
+          <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-3">
+            {activeCategory && (
               <button
-                className={`border border-ink px-3 py-1.5 font-mono text-xs tracking-wider uppercase transition-colors ${
-                  activeCategory === category.slug
-                    ? "bg-ink text-paper"
-                    : "text-ink-soft hover:bg-paper-dim"
-                }`}
-                key={category.slug}
-                onClick={() => toggleCategory(category.slug)}
+                className="flex items-center gap-1.5 border border-ink bg-paper-dim px-2.5 py-1 font-mono text-xs text-ink-soft uppercase"
+                onClick={() => setActiveCategory(null)}
                 type="button"
               >
-                {category.name}
+                {categoryName}
+                <X size={12} />
+              </button>
+            )}
+            {activeTags.map((slug) => (
+              <button
+                className="flex items-center gap-1.5 border border-dashed border-ink bg-paper-dim px-2.5 py-1 font-mono text-xs text-ink-soft"
+                key={slug}
+                onClick={() => toggleTag(slug)}
+                type="button"
+              >
+                #{tags.find((tag) => tag.slug === slug)?.name}
+                <X size={12} />
               </button>
             ))}
+            <button
+              className="font-mono text-xs text-ink-faint underline-offset-2 hover:text-ink hover:underline"
+              onClick={() => {
+                setActiveCategory(null);
+                setActiveTags([]);
+              }}
+              type="button"
+            >
+              clear all
+            </button>
           </div>
         )}
 
-        {tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
-            <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
-              Tags
-            </span>
-            {tags.map((tag) => (
-              <button
-                className={`border border-dashed border-ink px-3 py-1 font-mono text-xs transition-colors ${
-                  activeTags.includes(tag.slug)
-                    ? "bg-ink text-paper"
-                    : "text-ink-soft hover:bg-paper-dim"
-                }`}
-                key={tag.slug}
-                onClick={() => toggleTag(tag.slug)}
-                type="button"
-              >
-                #{tag.name}
-              </button>
-            ))}
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {filtersOpen && (
+            <motion.div
+              animate={{ height: "auto" }}
+              exit={{ height: 0 }}
+              initial={{ height: 0 }}
+              style={{ overflow: "hidden" }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {categories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
+                  <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
+                    Category
+                  </span>
+                  {categories.map((category) => (
+                    <button
+                      className={`border border-ink px-3 py-1.5 font-mono text-xs tracking-wider uppercase transition-colors ${
+                        activeCategory === category.slug
+                          ? "bg-ink text-paper"
+                          : "text-ink-soft hover:bg-paper-dim"
+                      }`}
+                      key={category.slug}
+                      onClick={() => toggleCategory(category.slug)}
+                      type="button"
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-        <div className="flex items-center gap-3 border-t-2 border-ink px-4 py-3 font-mono text-xs text-ink-faint">
+              {tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
+                  <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
+                    Tags
+                  </span>
+                  {tags.map((tag) => (
+                    <button
+                      className={`border border-dashed border-ink px-3 py-1 font-mono text-xs transition-colors ${
+                        activeTags.includes(tag.slug)
+                          ? "bg-ink text-paper"
+                          : "text-ink-soft hover:bg-paper-dim"
+                      }`}
+                      key={tag.slug}
+                      onClick={() => toggleTag(tag.slug)}
+                      type="button"
+                    >
+                      #{tag.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center gap-3 border-t-2 border-ink px-4 py-2.5 font-mono text-xs text-ink-faint">
           <motion.span key={filteredPosts.length}>
             {filteredPosts.length}{" "}
             {filteredPosts.length === 1 ? "post" : "posts"}
