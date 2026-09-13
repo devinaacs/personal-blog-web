@@ -25,7 +25,7 @@ export function BlogCard({ post }: { post: Post }) {
       transition={{ duration: 0.35, ease: EASE }}
     >
       <Link
-        className={`flex h-full flex-col justify-between p-6 transition-colors duration-200 hover:bg-ink hover:text-paper md:p-8 ${
+        className={`flex h-full flex-col justify-between p-6 text-ink transition-colors duration-200 hover:bg-ink hover:text-paper md:p-8 ${
           featured ? "gap-6 md:flex-row md:items-center md:gap-10" : ""
         }`}
         href={`/blog/${post.slug}`}

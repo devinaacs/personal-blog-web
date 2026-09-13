@@ -15,7 +15,7 @@ export function PostDetail({
   nextSlug?: string;
 }) {
   return (
-    <div className="relative min-h-screen bg-ink">
+    <div className="relative min-h-screen bg-ink text-paper">
       <ReadingProgress />
 
       <Link
