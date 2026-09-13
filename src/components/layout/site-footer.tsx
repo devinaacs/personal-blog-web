@@ -1,4 +1,3 @@
-import { WoodTexture } from "@/components/shared/wood-texture";
 import { getSiteSettings } from "@/lib/settings";
 
 export async function SiteFooter() {
@@ -6,69 +5,63 @@ export async function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden bg-zinc-900 px-6 py-16 text-white">
-      <WoodTexture />
-
-      <div className="relative mx-auto max-w-7xl">
-        <div className="mb-12 grid gap-12 md:grid-cols-2">
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold">{settings.siteName}</h3>
-            <p className="text-sm leading-relaxed text-zinc-400">
-              {settings.footerBlurb}
-            </p>
-            <div className="h-px w-24 bg-zinc-700" />
-          </div>
-
-          <div>
-            <h4 className="mb-4 font-mono text-xs tracking-widest text-zinc-500 uppercase">
-              Get in touch
-            </h4>
-            <div className="space-y-2 text-zinc-300">
-              {settings.email && (
-                <a
-                  className="block transition-colors hover:text-white"
-                  href={`mailto:${settings.email}`}
-                >
-                  {settings.email}
-                </a>
-              )}
-              {settings.github && (
-                <a
-                  className="block transition-colors hover:text-white"
-                  href={settings.github}
-                >
-                  {settings.github.replace("https://", "")}
-                </a>
-              )}
-              {settings.threads && (
-                <a
-                  className="block transition-colors hover:text-white"
-                  href={settings.threads}
-                >
-                  {settings.threads.replace("https://", "")}
-                </a>
-              )}
-              {settings.linkedin && (
-                <a
-                  className="block transition-colors hover:text-white"
-                  href={settings.linkedin}
-                >
-                  {settings.linkedin.replace("https://", "")}
-                </a>
-              )}
-            </div>
-          </div>
+    <footer className="bg-ink text-paper">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 divide-y divide-paper/15 md:grid-cols-2 md:divide-x md:divide-y-0">
+        <div className="space-y-4 px-6 py-12">
+          <h3 className="text-2xl font-bold tracking-tight">
+            {settings.siteName}
+          </h3>
+          <p className="max-w-sm text-sm leading-relaxed text-paper/60">
+            {settings.footerBlurb}
+          </p>
+          <div className="h-1 w-16 bg-accent" />
         </div>
 
-        <div className="border-t border-zinc-800 pt-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-zinc-500 md:flex-row">
-            <p className="font-mono">
-              © {year} • Built with Next.js • Fueled by coffee
-            </p>
-            <p className="font-mono">
-              Design inspired by brutalism & swiss design
-            </p>
+        <div className="px-6 py-12">
+          <h4 className="mb-4 font-mono text-xs tracking-widest text-paper/40 uppercase">
+            Get in touch
+          </h4>
+          <div className="space-y-2 text-paper/80">
+            {settings.email && (
+              <a
+                className="block w-fit transition-colors hover:text-accent"
+                href={`mailto:${settings.email}`}
+              >
+                {settings.email}
+              </a>
+            )}
+            {settings.github && (
+              <a
+                className="block w-fit transition-colors hover:text-accent"
+                href={settings.github}
+              >
+                {settings.github.replace("https://", "")}
+              </a>
+            )}
+            {settings.threads && (
+              <a
+                className="block w-fit transition-colors hover:text-accent"
+                href={settings.threads}
+              >
+                {settings.threads.replace("https://", "")}
+              </a>
+            )}
+            {settings.linkedin && (
+              <a
+                className="block w-fit transition-colors hover:text-accent"
+                href={settings.linkedin}
+              >
+                {settings.linkedin.replace("https://", "")}
+              </a>
+            )}
           </div>
+        </div>
+      </div>
+
+      <div className="border-t border-paper/15 px-6 py-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 font-mono text-xs text-paper/40 md:flex-row">
+          <p>© {year} — built with Next.js</p>
+          <p>set in Geist, ruled on a Swiss grid</p>
         </div>
       </div>
     </footer>

@@ -45,11 +45,12 @@ export default async function TagPage({
   return (
     <>
       <SiteHeader />
-      <main className="min-h-screen bg-zinc-50">
+      <main className="min-h-screen bg-paper">
         <BlogSection
           description={`// posts tagged #${tag.name}`}
           emptyMessage="No posts with this tag yet"
           heading={`#${tag.name}`}
+          index="01"
           posts={posts}
         />
       </main>

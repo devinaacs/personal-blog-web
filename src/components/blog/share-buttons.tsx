@@ -78,14 +78,14 @@ export function ShareButtons({
     <div className="flex flex-col items-center gap-2" ref={containerRef}>
       <div className="relative">
         {isOpen && (
-          <div className="absolute bottom-full left-1/2 mb-2 w-48 -translate-x-1/2 border-2 border-zinc-900 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+          <div className="absolute bottom-full left-1/2 mb-2 w-48 -translate-x-1/2 border-2 border-ink bg-paper shadow-[4px_4px_0_0_rgba(17,17,17,0.4)]">
             {SHARE_OPTIONS.map((option) => {
               const showCopied = option.platform === "copy-link" && copied;
               const Icon = showCopied ? Check : option.icon;
 
               return (
                 <button
-                  className="flex w-full items-center gap-3 border-b border-zinc-200 px-4 py-3 text-left font-mono text-sm text-zinc-900 transition-colors last:border-b-0 hover:bg-zinc-100"
+                  className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left font-mono text-sm text-ink transition-colors last:border-b-0 hover:bg-paper-dim"
                   key={option.platform}
                   onClick={() => handleOptionClick(option)}
                   type="button"
@@ -99,7 +99,7 @@ export function ShareButtons({
         )}
 
         <button
-          className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-900 text-white transition-all hover:bg-zinc-700 active:scale-90 sm:h-16 sm:w-16"
+          className="flex h-14 w-14 items-center justify-center border-2 border-paper bg-ink text-paper transition-all hover:bg-paper hover:text-ink active:scale-90 sm:h-16 sm:w-16"
           onClick={() => setIsOpen((prev) => !prev)}
           title="Share this post"
           type="button"
@@ -108,7 +108,7 @@ export function ShareButtons({
         </button>
       </div>
 
-      <span className="font-mono text-sm text-zinc-500">Share</span>
+      <span className="font-mono text-sm text-paper/50">Share</span>
     </div>
   );
 }

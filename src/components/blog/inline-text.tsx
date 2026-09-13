@@ -141,8 +141,12 @@ export function InlineText({ text }: { text: string }) {
         if (run.type === "code") {
           return (
             <code
+              className="rounded-sm px-1.5 py-0.5 font-mono text-[0.9em]"
               key={index}
-              style={{ color: "#ff0000", backgroundColor: "#eeeeee" }}
+              style={{
+                color: "var(--color-accent-deep)",
+                backgroundColor: "var(--color-paper-dim)",
+              }}
             >
               {run.text}
             </code>

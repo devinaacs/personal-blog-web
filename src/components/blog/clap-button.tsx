@@ -134,7 +134,7 @@ export function ClapButton({
       <div className="relative">
         {floaters.map((id) => (
           <span
-            className="pointer-events-none absolute top-0 left-1/2 font-mono text-sm font-bold text-zinc-900"
+            className="pointer-events-none absolute top-0 left-1/2 font-mono text-sm font-bold text-accent"
             key={id}
             style={{
               animation: `float-up ${FLOATER_LIFETIME_MS}ms ease-out forwards`,
@@ -145,7 +145,7 @@ export function ClapButton({
         ))}
 
         <button
-          className={`flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-900 text-white transition-all hover:bg-zinc-700 active:scale-90 sm:h-16 sm:w-16 ${
+          className={`flex h-14 w-14 items-center justify-center bg-accent text-paper transition-all hover:bg-accent-deep active:scale-90 sm:h-16 sm:w-16 ${
             atCap ? "cursor-default opacity-70" : "cursor-pointer"
           }`}
           disabled={atCap}
@@ -163,7 +163,7 @@ export function ClapButton({
         </button>
       </div>
 
-      <span className="font-mono text-sm text-zinc-500">
+      <span className="font-mono text-sm text-paper/50">
         {postClapCount.toLocaleString()} claps
       </span>
     </div>

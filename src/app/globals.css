@@ -46,6 +46,16 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+  --color-paper-dim: #ececec;
+  --color-ink: #111111;
+  --color-ink-soft: #4d4d4d;
+  --color-ink-faint: #8c8c8c;
+  --color-accent: #e5322d;
+  --color-accent-deep: #b81f1b;
+  --color-line: #d1d1d1;
 }
 
 :root {
@@ -139,3 +149,4 @@
     transform: translate(-50%, -28px);
   }
 }
+

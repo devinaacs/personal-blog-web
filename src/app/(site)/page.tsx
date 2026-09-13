@@ -12,7 +12,7 @@ export default async function Home() {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-50">
+    <main className="min-h-screen bg-paper">
       <Hero />
       <BlogSection posts={posts} />
       <About postsWrittenCount={pagination.total} />

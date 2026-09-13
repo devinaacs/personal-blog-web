@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { BlogCard } from "@/components/blog/blog-card";
 import { getPostExcerpt } from "@/lib/content-blocks";
@@ -87,15 +88,15 @@ export function BlogFilterGrid({
 
   return (
     <>
-      <div className="mb-10 border-2 border-zinc-200 bg-white p-6">
-        <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="mb-10 border-2 border-ink">
+        <div className="flex flex-col divide-y-2 divide-ink sm:flex-row sm:divide-x-2 sm:divide-y-0">
           <div className="relative flex-1">
             <Search
-              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-faint"
               size={18}
             />
             <input
-              className="w-full border border-zinc-300 bg-zinc-50 py-3 pr-4 pl-10 font-mono text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none"
+              className="w-full bg-paper py-4 pr-4 pl-11 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none"
               onChange={(event) => setSearch(event.target.value)}
               placeholder="search posts, tags..."
               type="text"
@@ -105,7 +106,7 @@ export function BlogFilterGrid({
 
           <div className="relative">
             <select
-              className="w-full appearance-none border border-zinc-300 bg-zinc-50 py-3 pr-10 pl-4 font-mono text-sm text-zinc-900 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none sm:w-auto"
+              className="w-full appearance-none bg-paper py-4 pr-10 pl-4 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none sm:w-auto"
               onChange={(event) => setSortOrder(event.target.value as SortOrder)}
               value={sortOrder}
             >
@@ -113,23 +114,23 @@ export function BlogFilterGrid({
               <option value="oldest">oldest first</option>
             </select>
             <ChevronDown
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-faint"
               size={16}
             />
           </div>
         </div>
 
         {categories.length > 0 && (
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <span className="mr-1 font-mono text-xs tracking-wider text-zinc-400 uppercase">
+          <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
+            <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
               Category
             </span>
             {categories.map((category) => (
               <button
-                className={`border px-3 py-1.5 font-mono text-xs tracking-wider uppercase transition-colors ${
+                className={`border border-ink px-3 py-1.5 font-mono text-xs tracking-wider uppercase transition-colors ${
                   activeCategory === category.slug
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-900"
+                    ? "bg-ink text-paper"
+                    : "text-ink-soft hover:bg-paper-dim"
                 }`}
                 key={category.slug}
                 onClick={() => toggleCategory(category.slug)}
@@ -142,16 +143,16 @@ export function BlogFilterGrid({
         )}
 
         {tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="mr-1 font-mono text-xs tracking-wider text-zinc-400 uppercase">
+          <div className="flex flex-wrap items-center gap-2 border-t-2 border-ink px-4 py-4">
+            <span className="mr-1 font-mono text-xs tracking-wider text-ink-faint uppercase">
               Tags
             </span>
             {tags.map((tag) => (
               <button
-                className={`border border-dashed px-3 py-1 font-mono text-xs transition-colors ${
+                className={`border border-dashed border-ink px-3 py-1 font-mono text-xs transition-colors ${
                   activeTags.includes(tag.slug)
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-900"
+                    ? "bg-ink text-paper"
+                    : "text-ink-soft hover:bg-paper-dim"
                 }`}
                 key={tag.slug}
                 onClick={() => toggleTag(tag.slug)}
@@ -163,24 +164,28 @@ export function BlogFilterGrid({
           </div>
         )}
 
-        <div className="mt-6 flex items-center gap-3 border-t border-zinc-100 pt-4 font-mono text-xs text-zinc-500">
-          <div className="h-px w-6 bg-zinc-300" />
-          {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"}
+        <div className="flex items-center gap-3 border-t-2 border-ink px-4 py-3 font-mono text-xs text-ink-faint">
+          <motion.span key={filteredPosts.length}>
+            {filteredPosts.length}{" "}
+            {filteredPosts.length === 1 ? "post" : "posts"}
+          </motion.span>
         </div>
       </div>
 
       {filteredPosts.length === 0 ? (
-        <div className="border-2 border-zinc-200 bg-white py-16 text-center">
+        <div className="border-2 border-ink py-16 text-center">
           <div className="mb-4 text-6xl">{posts.length === 0 ? "📝" : "🔍"}</div>
-          <p className="text-xl text-zinc-600">
+          <p className="text-xl font-bold text-ink-soft">
             {posts.length === 0 ? emptyMessage : "No posts match your filters"}
           </p>
         </div>
       ) : (
-        <div className="grid auto-rows-fr gap-6 md:grid-cols-3">
-          {filteredPosts.map((post) => (
-            <BlogCard key={post.id} post={post} />
-          ))}
+        <div className="grid auto-rows-fr grid-cols-1 gap-px bg-ink md:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {filteredPosts.map((post) => (
+              <BlogCard key={post.id} post={post} />
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </>

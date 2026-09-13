@@ -45,11 +45,12 @@ export default async function CategoryPage({
   return (
     <>
       <SiteHeader />
-      <main className="min-h-screen bg-zinc-50">
+      <main className="min-h-screen bg-paper">
         <BlogSection
           description={`// posts filed under ${category.name}`}
           emptyMessage="No posts in this category yet"
           heading={category.name}
+          index="01"
           posts={posts}
         />
       </main>

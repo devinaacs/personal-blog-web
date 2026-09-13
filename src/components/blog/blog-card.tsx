@@ -1,70 +1,104 @@
+"use client";
+
 import Link from "next/link";
 import { format } from "date-fns";
 import { Pin } from "lucide-react";
+import { motion } from "motion/react";
 
 import { getPostExcerpt } from "@/lib/content-blocks";
 import { Post } from "@/types/post";
 
+const EASE = [0.16, 1, 0.3, 1] as const;
+
 export function BlogCard({ post }: { post: Post }) {
   const excerpt = getPostExcerpt(post);
   const date = format(new Date(post.publishedAt), "MMM d, yyyy").toLowerCase();
+  const featured = post.pinned;
 
   return (
-    <Link
-      className="group relative block cursor-pointer overflow-hidden border border-zinc-200 bg-white transition-all duration-300 hover:border-zinc-900"
-      href={`/blog/${post.slug}`}
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      className={`group relative bg-paper ${featured ? "md:col-span-3" : ""}`}
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+      initial={{ opacity: 0, y: 12 }}
+      layout
+      transition={{ duration: 0.35, ease: EASE }}
     >
-      {post.pinned && (
-        <div className="absolute top-0 left-0 z-10 flex items-center gap-1 bg-zinc-900 px-3 py-1 font-mono text-xs text-white">
-          <Pin size={12} />
-          Pinned
-        </div>
-      )}
-
-      <div className="absolute top-0 right-0 bg-zinc-900 px-3 py-1 font-mono text-xs text-white">
-        {post.number}
-      </div>
-
-      <div className="flex h-full flex-col p-6 md:p-8">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="h-px w-8 bg-zinc-300 transition-all group-hover:w-12" />
-          <time className="font-mono text-xs tracking-wider text-zinc-500 uppercase">
-            {date}
-          </time>
-          {post.category && (
-            <span className="border border-zinc-300 px-2 py-0.5 font-mono text-xs tracking-wider text-zinc-600 uppercase">
-              {post.category.name}
-            </span>
-          )}
-        </div>
-
-        <h3 className="mb-4 text-xl leading-tight font-bold text-zinc-900 md:text-2xl">
-          {post.title}
-        </h3>
-
-        <p className="grow text-base leading-relaxed text-zinc-600">{excerpt}</p>
-
-        {post.tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <span
-                className="border border-dashed border-zinc-300 px-2 py-0.5 font-mono text-xs text-zinc-500"
-                key={tag.id}
-              >
-                #{tag.name}
+      <Link
+        className={`flex h-full flex-col justify-between p-6 transition-colors duration-200 hover:bg-ink hover:text-paper md:p-8 ${
+          featured ? "gap-6 md:flex-row md:items-center md:gap-10" : ""
+        }`}
+        href={`/blog/${post.slug}`}
+      >
+        {featured ? (
+          <>
+            <div className="flex shrink-0 items-center gap-5 md:w-56">
+              <span className="font-mono text-5xl font-bold text-ink-faint transition-colors group-hover:text-paper/25">
+                {post.number}
               </span>
-            ))}
-          </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 font-mono text-xs tracking-wider text-ink-faint uppercase transition-colors group-hover:text-paper/60">
+                  <Pin size={12} />
+                  pinned
+                </div>
+                <time className="block font-mono text-xs text-ink-faint transition-colors group-hover:text-paper/60">
+                  {date}
+                </time>
+              </div>
+            </div>
+
+            <h3 className="flex-1 text-2xl leading-tight font-bold md:text-3xl">
+              {post.title}
+            </h3>
+
+            <p className="hidden max-w-xs text-sm leading-relaxed text-ink-soft transition-colors group-hover:text-paper/70 lg:block">
+              {excerpt}
+            </p>
+
+            <span className="hidden shrink-0 items-center gap-2 font-mono text-sm md:flex">
+              read <span className="text-xl">→</span>
+            </span>
+          </>
+        ) : (
+          <>
+            <div>
+              <div className="mb-6 flex items-center justify-between">
+                <time className="font-mono text-xs tracking-wider text-ink-faint uppercase transition-colors group-hover:text-paper/60">
+                  {date}
+                </time>
+                <span className="font-mono text-xs text-ink-faint transition-colors group-hover:text-paper/60">
+                  {post.number}
+                </span>
+              </div>
+
+              {post.category && (
+                <span className="mb-4 inline-block border border-ink px-2 py-0.5 font-mono text-xs tracking-wider uppercase transition-colors group-hover:border-paper">
+                  {post.category.name}
+                </span>
+              )}
+
+              <h3 className="mb-4 text-xl leading-tight font-bold md:text-2xl">
+                {post.title}
+              </h3>
+
+              <p className="text-base leading-relaxed text-ink-soft transition-colors group-hover:text-paper/70">
+                {excerpt}
+              </p>
+            </div>
+
+            <div className="mt-8 flex items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-ink-faint transition-colors group-hover:text-paper/50">
+                {post.tags.slice(0, 3).map((tag) => (
+                  <span key={tag.id}>#{tag.name}</span>
+                ))}
+              </div>
+              <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">
+                →
+              </span>
+            </div>
+          </>
         )}
-
-        <div className="mt-6 flex items-center gap-2 text-zinc-900 transition-all group-hover:gap-4">
-          <span className="font-mono text-sm">read</span>
-          <div className="h-px grow bg-zinc-900 opacity-0 transition-opacity group-hover:opacity-100" />
-          <span className="text-xl">→</span>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 left-0 h-0 w-0 border-b-[20px] border-l-[20px] border-b-zinc-900 border-l-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-    </Link>
+      </Link>
+    </motion.div>
   );
 }

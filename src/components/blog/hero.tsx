@@ -1,51 +1,97 @@
-import { WoodTexture } from "@/components/shared/wood-texture";
+"use client";
+
+import { motion } from "motion/react";
+
+import { RegisterMark } from "@/components/shared/grid-lines";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const LINES = [
+  { text: "thoughts,", tone: "text-ink" },
+  { text: "code,", tone: "text-ink" },
+  { text: "& everything", tone: "text-ink-faint" },
+  { text: "in between", tone: "text-ink-faint" },
+];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-zinc-50 px-6 py-20 md:py-32">
-      <WoodTexture />
-
-      <div className="absolute top-10 right-10 h-32 w-32 rotate-12 border border-zinc-300 opacity-30" />
-      <div className="absolute bottom-20 left-1/4 h-24 w-24 -rotate-6 border border-zinc-300 opacity-20" />
-
+    <section className="relative border-b-2 border-ink bg-paper">
       <div className="relative mx-auto max-w-6xl">
-        <div className="max-w-3xl">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-px w-12 bg-zinc-900" />
-            <span className="font-mono text-xs tracking-widest text-zinc-600 uppercase">
-              Personal Journal
-            </span>
+        <RegisterMark className="absolute -top-2 -left-2 hidden lg:block" />
+        <RegisterMark className="absolute -top-2 -right-2 hidden lg:block" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12">
+          <div className="border-ink px-6 py-16 lg:col-span-8 lg:border-r-2 lg:py-24">
+            <motion.div
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-8 flex items-center gap-3"
+              initial={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.6, ease: EASE }}
+            >
+              <div className="h-px w-12 bg-accent" />
+              <span className="font-mono text-xs tracking-widest text-ink-soft uppercase">
+                Personal Journal
+              </span>
+            </motion.div>
+
+            <h1 className="font-sans text-6xl leading-[0.92] font-bold tracking-tight sm:text-7xl md:text-8xl">
+              {LINES.map((line, index) => (
+                <span className="block overflow-hidden" key={line.text}>
+                  <motion.span
+                    animate={{ y: 0 }}
+                    className={`block ${line.tone}`}
+                    initial={{ y: "110%" }}
+                    transition={{
+                      duration: 0.7,
+                      delay: 0.15 + index * 0.08,
+                      ease: EASE,
+                    }}
+                  >
+                    {line.text}
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
           </div>
 
-          <div className="mb-12 space-y-3 sm:space-y-4">
-            <h2 className="text-4xl leading-none font-bold text-zinc-900 sm:text-5xl md:text-7xl">
-              thoughts,
-            </h2>
-            <h2 className="text-4xl leading-none font-bold text-zinc-900 sm:text-5xl md:pl-20 md:text-7xl">
-              code,
-            </h2>
-            <h2 className="text-4xl leading-none font-bold text-zinc-400 sm:text-5xl md:pl-10 md:text-7xl">
-              & everything
-            </h2>
-            <h2 className="text-4xl leading-none font-bold text-zinc-400 sm:text-5xl md:pl-32 md:text-7xl">
-              in between
-            </h2>
-          </div>
+          <div className="flex flex-col divide-y-2 divide-ink lg:col-span-4">
+            <div className="flex items-center justify-between px-6 py-6 font-mono text-xs tracking-widest uppercase">
+              <span className="text-ink-faint">Issue</span>
+              <span className="text-ink">est. 2026</span>
+            </div>
 
-          <div className="relative max-w-xl border-l-4 border-zinc-900 bg-white p-8 shadow-lg">
-            <div className="absolute -top-3 -left-3 h-6 w-6 bg-zinc-900" />
-            <p className="text-lg leading-relaxed font-light text-zinc-700">
-              Welcome to my digital corner. I write about the things that keep
-              me up at night, usually bugs in my code, but sometimes life stuff
-              too. No templates here, just raw thoughts typed out at 2am.
-            </p>
-          </div>
+            <motion.div
+              animate={{ opacity: 1 }}
+              className="flex-1 px-6 py-8"
+              initial={{ opacity: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <p className="text-lg leading-relaxed text-ink-soft">
+                Welcome to my digital corner. I write about the things that
+                keep me up at night, usually bugs in my code, but sometimes
+                life stuff too. No templates here, just raw thoughts typed
+                out at 2am.
+              </p>
+            </motion.div>
 
-          <div className="mt-16 flex items-center gap-3">
-            <div className="h-16 w-px bg-zinc-300" />
-            <span className="origin-left -rotate-90 font-mono text-xs text-zinc-500">
-              scroll
-            </span>
+            <div className="flex items-center justify-between px-6 py-6 font-mono text-xs tracking-widest uppercase">
+              <span className="text-ink-faint">Status</span>
+              <span className="flex items-center gap-2 text-ink">
+                <span className="h-1.5 w-1.5 bg-accent" />
+                currently writing
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 px-6 py-6">
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                className="h-4 w-px bg-ink-faint"
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <span className="font-mono text-xs tracking-widest text-ink-faint uppercase">
+                scroll
+              </span>
+            </div>
           </div>
         </div>
       </div>
