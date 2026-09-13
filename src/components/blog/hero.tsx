@@ -8,7 +8,7 @@ export function Hero() {
       <div className="absolute top-10 right-10 h-32 w-32 rotate-12 border border-zinc-300 opacity-30" />
       <div className="absolute bottom-20 left-1/4 h-24 w-24 -rotate-6 border border-zinc-300 opacity-20" />
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative mx-auto max-w-6xl">
         <div className="max-w-3xl">
           <div className="mb-8 flex items-center gap-3">
             <div className="h-px w-12 bg-zinc-900" />

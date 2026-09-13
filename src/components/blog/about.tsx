@@ -20,7 +20,7 @@ export async function About({
       <div className="absolute top-20 right-20 h-40 w-40 -rotate-12 border-2 border-zinc-200" />
       <div className="absolute bottom-40 left-10 h-32 w-32 rotate-45 bg-zinc-900 opacity-5" />
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative mx-auto max-w-6xl">
         <div className="grid items-start gap-12 md:grid-cols-12">
           <div className="space-y-6 md:col-span-5">
             <div className="relative">

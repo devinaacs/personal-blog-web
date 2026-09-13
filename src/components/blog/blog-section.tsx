@@ -20,7 +20,7 @@ export function BlogSection({
     >
       <WoodTexture />
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative mx-auto max-w-6xl">
         <div className="mb-16">
           <div className="mb-4 flex items-center gap-4">
             <div className="h-px w-16 bg-zinc-900" />
