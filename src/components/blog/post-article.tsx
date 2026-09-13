@@ -241,7 +241,7 @@ export function PostArticle({
             <div className="mt-6 flex flex-wrap gap-x-3 gap-y-1 border-t border-paper/15 pt-4">
               {post.tags.map((tag) => (
                 <Link
-                  className="font-mono text-xs text-paper/40 transition-colors hover:text-accent"
+                  className="font-mono text-xs text-paper/60 transition-colors hover:text-accent"
                   href={`/blog/tag/${tag.slug}`}
                   key={tag.id}
                 >

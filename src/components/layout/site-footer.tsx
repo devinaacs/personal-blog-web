@@ -18,7 +18,7 @@ export async function SiteFooter() {
         </div>
 
         <div className="px-6 py-12">
-          <h4 className="mb-4 font-mono text-xs tracking-widest text-paper/40 uppercase">
+          <h4 className="mb-4 font-mono text-xs tracking-widest text-paper/60 uppercase">
             Get in touch
           </h4>
           <div className="space-y-2 text-paper/80">
@@ -59,7 +59,7 @@ export async function SiteFooter() {
       </div>
 
       <div className="border-t border-paper/15 px-6 py-6">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 font-mono text-xs text-paper/40 md:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 font-mono text-xs text-paper/60 md:flex-row">
           <p>© {year} — built with Next.js</p>
           <p>set in Geist, ruled on a Swiss grid</p>
         </div>
