@@ -1,14 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { Select as SelectPrimitive } from "radix-ui";
 
 import { BlogCard } from "@/components/blog/blog-card";
 import { getPostExcerpt } from "@/lib/content-blocks";
 import { Post } from "@/types/post";
 
 type SortOrder = "newest" | "oldest";
+
+const SORT_LABELS: Record<SortOrder, string> = {
+  newest: "newest first",
+  oldest: "oldest first",
+};
 
 function useUniqueTaxonomy(posts: Post[]) {
   return useMemo(() => {
@@ -107,20 +113,44 @@ export function BlogFilterGrid({
             />
           </div>
 
-          <div className="relative">
-            <select
-              className="w-full appearance-none bg-paper py-3 pr-10 pl-4 font-mono text-sm text-ink focus:bg-paper-dim focus:outline-none sm:w-auto"
-              onChange={(event) => setSortOrder(event.target.value as SortOrder)}
-              value={sortOrder}
-            >
-              <option value="newest">newest first</option>
-              <option value="oldest">oldest first</option>
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-faint"
-              size={14}
-            />
-          </div>
+          <SelectPrimitive.Root
+            onValueChange={(value) => setSortOrder(value as SortOrder)}
+            value={sortOrder}
+          >
+            <SelectPrimitive.Trigger className="group flex w-full items-center justify-between gap-8 bg-paper py-3 pr-4 pl-4 font-mono text-sm text-ink uppercase tracking-wider outline-none data-[state=open]:bg-ink data-[state=open]:text-paper sm:w-auto">
+              <SelectPrimitive.Value />
+              <SelectPrimitive.Icon>
+                <ChevronDown
+                  className="text-ink-faint transition-transform group-data-[state=open]:rotate-180 group-data-[state=open]:text-paper"
+                  size={14}
+                />
+              </SelectPrimitive.Icon>
+            </SelectPrimitive.Trigger>
+            <SelectPrimitive.Portal>
+              <SelectPrimitive.Content
+                className="z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden border-2 border-ink bg-paper text-ink shadow-[4px_4px_0_0_var(--color-ink)] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+                position="popper"
+                sideOffset={8}
+              >
+                <SelectPrimitive.Viewport className="p-0">
+                  {(Object.keys(SORT_LABELS) as SortOrder[]).map((value) => (
+                    <SelectPrimitive.Item
+                      className="flex cursor-pointer items-center justify-between gap-6 px-4 py-2.5 font-mono text-sm text-ink-soft uppercase tracking-wider outline-none select-none data-[highlighted]:bg-ink data-[highlighted]:text-paper data-[state=checked]:bg-ink data-[state=checked]:text-paper"
+                      key={value}
+                      value={value}
+                    >
+                      <SelectPrimitive.ItemText>
+                        {SORT_LABELS[value]}
+                      </SelectPrimitive.ItemText>
+                      <SelectPrimitive.ItemIndicator>
+                        <Check size={14} />
+                      </SelectPrimitive.ItemIndicator>
+                    </SelectPrimitive.Item>
+                  ))}
+                </SelectPrimitive.Viewport>
+              </SelectPrimitive.Content>
+            </SelectPrimitive.Portal>
+          </SelectPrimitive.Root>
 
           <button
             className={`flex items-center justify-center gap-2 px-4 py-3 font-mono text-xs tracking-wider uppercase transition-colors ${
